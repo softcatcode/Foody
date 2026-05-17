@@ -1,0 +1,435 @@
+package com.softcat.foody.screens.details
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.softcat.domain.entities.NutritionData
+import com.softcat.foody.R
+import com.softcat.foody.common.DetailsTopBar
+import com.softcat.foody.common.ElementsScrollableFlow
+import com.softcat.foody.common.Switcher
+
+@Composable
+@Preview
+private fun RecipeStep(
+    modifier: Modifier = Modifier,
+    stepNumber: Int = 1,
+    stepCount: Int = 5,
+    step: String = "Высыпать 500г муки, столовую ложку сахара и половину чайной ложки соли в миску.",
+    onPreviousStepClicked: () -> Unit = {},
+    onNextStepClicked: () -> Unit = {},
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        elevation = CardDefaults.cardElevation(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                modifier = Modifier.align(Alignment.BottomStart),
+                onClick = onPreviousStepClicked
+            ) {
+                Icon(
+                    modifier = Modifier.size(48.dp),
+                    contentDescription = null,
+                    painter = painterResource(R.drawable.left_chevron),
+                    tint = if (stepNumber > 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                )
+            }
+            IconButton(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onClick = onNextStepClicked
+            ) {
+                Icon(
+                    modifier = Modifier.size(48.dp),
+                    contentDescription = null,
+                    painter = painterResource(R.drawable.right_chevron),
+                    tint = if (stepNumber < stepCount) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 48.dp)
+                    .wrapContentSize()
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.step_number).format(stepNumber, stepCount),
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
+                val scrollState = rememberScrollState()
+                Text(
+                    modifier = Modifier.fillMaxWidth().verticalScroll(scrollState),
+                    text = step,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun ExtraInfoElement(
+    modifier: Modifier = Modifier,
+    iconResId: Int = R.drawable.sugar_icon,
+    labelResId: Int = R.string.sugar,
+    unitsResId: Int = R.string.calories_units,
+    value: Int = 100
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier.size(32.dp),
+            painter = painterResource(iconResId),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            modifier = Modifier.weight(2f),
+            text = stringResource(labelResId),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.weight(2f))
+        Text(
+            modifier = Modifier.weight(1f),
+            text = value.toString() + " " + stringResource(unitsResId),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+@Preview
+fun RecipeExtraInfoCard(
+    modifier: Modifier = Modifier,
+    data: NutritionData = NutritionData(
+        calories = 1200f,
+        fat = 150f,
+        sugar = 20f,
+        sodium = 0f,
+        protein = 50f,
+        saturatedFat = 0f,
+        carbohydrates = 250f
+    ),
+    cookingTime: Int = 30
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        elevation = CardDefaults.cardElevation(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            item {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.nutrition_data_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.clock_filled,
+                    labelResId = R.string.cooking_time,
+                    unitsResId = R.string.min,
+                    value = cookingTime
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.calories_icon,
+                    labelResId = R.string.calories,
+                    unitsResId = R.string.calories_units,
+                    value = data.calories.toInt()
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.protein_icon,
+                    labelResId = R.string.protein,
+                    unitsResId = R.string.gram,
+                    value = data.protein.toInt()
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.carbohydrates_icon,
+                    labelResId = R.string.carbohydrates,
+                    unitsResId = R.string.gram,
+                    value = data.carbohydrates.toInt()
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.sugar_icon,
+                    labelResId = R.string.sugar,
+                    unitsResId = R.string.gram,
+                    value = data.sugar.toInt()
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.fat_icon,
+                    labelResId = R.string.fat,
+                    unitsResId = R.string.gram,
+                    value = data.fat.toInt()
+                )
+            }
+            item {
+                ExtraInfoElement(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconResId = R.drawable.fat_icon,
+                    labelResId = R.string.saturated_fat,
+                    unitsResId = R.string.gram,
+                    value = data.saturatedFat.toInt()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecipeScore(
+    scoreValue: Int?,
+    deleteScore: () -> Unit = {},
+    onScoreChanged: (Int) -> Unit = {}
+) {
+    Row(
+        modifier = Modifier.wrapContentSize(),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        scoreValue?.let {
+            IconButton(
+                onClick = deleteScore,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.cross),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
+        if (scoreValue != null) {
+            repeat(5) {
+                if (it + 1 <= scoreValue) {
+                    IconButton(
+                        modifier = Modifier.size(32.dp),
+                        onClick = { onScoreChanged(it + 1) }
+                    ) {
+                        Image(
+                            modifier = Modifier.size(32.dp),
+                            painter = painterResource(R.drawable.star_filled),
+                            contentDescription = null
+                        )
+                    }
+                } else {
+                    IconButton(
+                        modifier = Modifier.size(32.dp),
+                        onClick = { onScoreChanged(it + 1) }
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(32.dp),
+                            painter = painterResource(R.drawable.star_outlined),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                }
+            }
+        } else {
+            repeat(5) {
+                Icon(
+                    modifier = Modifier.size(32.dp),
+                    painter = painterResource(R.drawable.star_outlined),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+        }
+    }
+    val labelResId = if (scoreValue != null)
+        R.string.score else R.string.authorize_to_access_scores
+    Text(
+        text = stringResource(labelResId),
+        color = MaterialTheme.colorScheme.tertiary,
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+@Composable
+@Preview
+private fun UserScoringData(
+    modifier: Modifier = Modifier,
+    isCooked: Boolean = false,
+    scoreValue: Int? = 3,
+    onIsCookedChanged: (Boolean) -> Unit = {},
+    deleteScore: () -> Unit = {},
+    onScoreChanged: (Int) -> Unit = {}
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(32.dp))
+        Switcher(
+            modifier = Modifier.size(64.dp, 32.dp),
+            checked = isCooked,
+            onCheckedChanged = onIsCookedChanged
+        )
+        Text(
+            text = stringResource(R.string.is_cooked),
+            color = MaterialTheme.colorScheme.tertiary,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(Modifier.height(16.dp))
+        RecipeScore(
+            scoreValue = scoreValue,
+            deleteScore = deleteScore,
+            onScoreChanged = onScoreChanged
+        )
+    }
+}
+
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun DetailsContent(component: DetailsComponent) {
+    val model = component.model.collectAsState()
+    val state = model.value
+    val isFavourite = when (state.scoring) {
+        is DetailsStore.State.UserScoring.UserAuthorized -> state.scoring.isFavourite
+        DetailsStore.State.UserScoring.UserIsAbsent -> null
+    }
+    Scaffold(
+        topBar = {
+            DetailsTopBar(
+                isFavourite = isFavourite,
+                onBackClicked = { component.back() },
+                onChangeFavouriteStatus = {oldFavouriteStatus ->
+                    if (oldFavouriteStatus)
+                        component.removeFromFavourites()
+                    else
+                        component.addToFavourites()
+                }
+            )
+        }
+    ) { paddingValues ->
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+                .padding(start = 16.dp, end = 16.dp)
+                .verticalScroll(scrollState)
+        ) {
+            val ingredientStrings = state.recipe.ingredients.map { it.name }
+            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            val maxStepHeight = screenHeight * 0.3f
+            ElementsScrollableFlow(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .weight(1.5f)
+                    .fillMaxHeight(0.5f),
+                elements = ingredientStrings,
+                color = MaterialTheme.colorScheme.primary,
+                title = stringResource(R.string.ingredients),
+                iconId = R.drawable.vegetables,
+                showAddButton = false
+            )
+            Spacer(Modifier.height(16.dp))
+            RecipeStep(
+                modifier = Modifier.heightIn(max = maxStepHeight),
+                stepNumber = state.stepNumber,
+                stepCount = state.recipe.steps.size,
+                step = state.recipe.steps[state.stepNumber - 1],
+                onPreviousStepClicked = { component.previousStep() },
+                onNextStepClicked = { component.nextStep() }
+            )
+            Spacer(Modifier.height(16.dp))
+            RecipeExtraInfoCard(
+                modifier = Modifier.weight(1.5f),
+                data = state.recipe.nutrition,
+                cookingTime = state.recipe.minutes
+            )
+            val scoreValue = when (state.scoring) {
+                is DetailsStore.State.UserScoring.UserAuthorized -> state.scoring.score ?: 0
+                DetailsStore.State.UserScoring.UserIsAbsent -> null
+            }
+            UserScoringData(
+                modifier = Modifier,
+                isCooked = state.recipe.isCooked,
+                scoreValue = scoreValue,
+                onIsCookedChanged = component::changeIsCooked,
+                deleteScore = component::deleteScore,
+                onScoreChanged = component::updateScore
+            )
+        }
+    }
+}

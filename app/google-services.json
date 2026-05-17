@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "345778154623",
+    "firebase_url": "https://softcat-recipe-recommender-default-rtdb.firebaseio.com",
+    "project_id": "softcat-recipe-recommender",
+    "storage_bucket": "softcat-recipe-recommender.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345778154623:android:be7989f930bf0bf6a0234a",
+        "android_client_info": {
+          "package_name": "com.softcat.foody"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEQgyb38P_uzt9Jv4F_jSYhgC4UwZJf-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

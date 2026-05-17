@@ -1,0 +1,91 @@
+<resources>
+    <string name="app_name">Foody</string>
+    <string name="search_line_placeholder">Поиск рецепта</string>
+
+    <string name="filters_sheet_title">Фильтры</string>
+    <string name="filters_sheet_tags_title">Теги</string>
+    <string name="filters_sheet_ingredients_title">Ингредиенты</string>
+    <string name="min_score_filter_param_title">Минимальная оценка</string>
+    <string name="min_score_filter_param_value">%d из 5</string>
+    <string name="calories_filter_param_title">Калорийность</string>
+    <string name="calories_filter_param_value">%d — %d Ккал</string>
+    <string name="duration_filter_param_title">Время приготовления</string>
+    <string name="duration_filter_param_value">%d — %d мин</string>
+    <string name="is_cooked_filter_param_title">Приготовлено</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="not_important">Не важно</string>
+
+    <string name="empty_result_title">Рецепты не найдены</string>
+    <string name="empty_result_hint">Возможно, они все были отфильтрованы</string>
+    <string name="search_screen_hint">После ввода названия блюда здесь появятся рецепты</string>
+    <string name="search_title">Поиск</string>
+
+    <string name="favourites_title">Избранное</string>
+    <string name="favourites_without_user_title">Недоступно</string>
+    <string name="favourites_without_user_text">Войдите или зарегистрируйтесь для доступа к избранному</string>
+    <string name="favourites_without_content_title">Здесь пока пусто</string>
+    <string name="favourites_without_content_text">Рецепты можно найти в разделе рекомендаций или поиска</string>
+    <string name="find_recipe_navigation_title">Найти рецепт</string>
+    <string name="recommend_recipe_navigation_title">Получить ркомендацию</string>
+
+    <string name="profile_title">Профиль</string>
+    <string name="scores">Оценки</string>
+    <string name="exit">Выйти</string>
+    <string name="user_id">User id</string>
+    <string name="user_name">Имя</string>
+    <string name="user_email">Почта</string>
+    <string name="user_password">Пароль</string>
+    <string name="register_date">Профиль создан: </string>
+    <string name="avatar_saved">Фото профиля сохранено.</string>
+    <string name="avatar_save_error">Ошибка обновления фото профиля. Новое фото не сохранено.</string>
+    <string name="avatar_read_error">Ошибка чтения файла с изображением. Фото профиля не обновлено.</string>
+    <string name="deny_read_images_warning">Без доступа к галерее невозможно обновить фото профиля</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="delay">Отмена</string>
+    <string name="confirm_exit">Вы действительно хотите выйти из профиля?</string>
+
+    <string name="authorization">Авторизация</string>
+    <string name="auth_initial_screen_title">Вход и регистрация</string>
+    <string name="auth_initial_screen_text">Это позволяет получать рекомендации рецептов на других устройствах</string>
+    <string name="enter">Вход</string>
+    <string name="register">Регистрация</string>
+    <string name="email">Почта</string>
+    <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="scores_title">Оценки</string>
+
+    <string name="add">Добавить</string>
+    <string name="ingredients">Ингредиенты</string>
+    <string name="tags">Теги</string>
+    <string name="recommendations_title">Рекомендации</string>
+    <string name="max_absent_ingredients">Допуск отсутствующих ингредиентов</string>
+    <string name="recommend_button_text">Получить рекомендацию</string>
+    <string name="step_number">Шаг %d из %d</string>
+    <string name="search_tag">Поиск тега</string>
+    <string name="search_ingredient">Поиск ингредиента</string>
+
+    <string name="calories">Калории</string>
+    <string name="calories_units">ККал</string>
+    <string name="gram">г</string>
+    <string name="min">мин</string>
+    <string name="fat">Жиры</string>
+    <string name="sugar">Сахар</string>
+    <string name="saturated_fat">Насыщенные жиры</string>
+    <string name="protein">Белки</string>
+    <string name="carbohydrates">Углеводы</string>
+    <string name="cooking_time">Время приготовления</string>
+    <string name="nutrition_data_title">Дополнительная информация</string>
+    <string name="is_cooked">Приготовлено</string>
+    <string name="score">Оценка</string>
+    <string name="recipe_details_title">Рецепт</string>
+    <string name="authorize_to_access_scores">Authorize to score this recipe</string>
+
+    <string name="initialization_title">Подготовка</string>
+    <string name="initialization_instruction">Выбор размера базы данных с рецептами</string>
+    <string name="add_recipes_title">Добавить %d рецептов</string>
+    <string name="small_db_description">Маленькая легковесная база рецептов. Быстро инициализируется и не занимает много памяти. Используй, если тебе достаточно её рецептов.</string>
+    <string name="medium_db_description">Компромисс между используемой памятью и количеством рецептов. Инициализация не займёт больше минуты.</string>
+    <string name="big_db_description">Большая база рецептов, которая требует несколько минут на подготовку. Используй, если не ограничен по памяти и хочешь получить доступ ко всем рецептам.</string>
+    <string name="continue_title">Продолжить</string>
+</resources>
