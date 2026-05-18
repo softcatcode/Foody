@@ -203,8 +203,9 @@ fun AuthTopBar(
 @Composable
 @Preview
 fun DetailsTopBar(
-    isFavourite: Boolean? = true,
-    onChangeFavouriteStatus: (Boolean) -> Unit = {},
+    isFavourite: Boolean = true,
+    isFavouriteVisible: Boolean = true,
+    onChangeFavouriteStatus: () -> Unit = {},
     onBackClicked: () -> Unit = {}
 ) {
     TopAppBar(
@@ -225,9 +226,9 @@ fun DetailsTopBar(
             containerColor = MaterialTheme.colorScheme.primary
         ),
         actions = {
-            isFavourite?.let {
+            if (isFavouriteVisible) {
                 AddToFavouritesButton(
-                    isFavourite = it,
+                    isFavourite = isFavourite,
                     onClick = onChangeFavouriteStatus
                 )
             }

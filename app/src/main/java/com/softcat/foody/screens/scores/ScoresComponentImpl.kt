@@ -37,9 +37,9 @@ class ScoresComponentImpl @AssistedInject constructor(
         store.accept(ScoresStore.Intent.ChangeValue(recipeId, newValue))
     }
 
-    override fun changeFavouriteStatus(recipeId: Int, isFavourite: Boolean) {
-        Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId, $isFavourite)")
-        store.accept(ScoresStore.Intent.ChangeFavouriteStatus(recipeId, isFavourite))
+    override fun changeFavouriteStatus(recipeId: Int) {
+        Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId)")
+        store.accept(ScoresStore.Intent.ChangeFavouriteStatus(recipeId))
     }
 
     override fun changeIsCookedFilter(newValue: Boolean) {

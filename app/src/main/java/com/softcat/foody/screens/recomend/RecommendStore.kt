@@ -17,10 +17,7 @@ interface RecommendStore : Store<RecommendStore.Intent, RecommendStore.State, Re
 
         data class ChangeMaxAbsentIngredients(val newValue: Int) : Intent
 
-        data class ChangeFavouriteStatus(
-            val recipeId: Int,
-            val isFavourite: Boolean,
-        ) : Intent
+        data class ChangeFavouriteStatus(val recipeId: Int) : Intent
 
         data class OpenRecipeDetails(val id: Int): Intent
 

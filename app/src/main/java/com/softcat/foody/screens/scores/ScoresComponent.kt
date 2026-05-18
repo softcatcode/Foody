@@ -12,7 +12,7 @@ interface ScoresComponent {
 
     fun changeScoreValue(recipeId: Int, newValue: Int)
 
-    fun changeFavouriteStatus(recipeId: Int, isFavourite: Boolean)
+    fun changeFavouriteStatus(recipeId: Int)
 
     fun changeIsCookedFilter(newValue: Boolean)
 }

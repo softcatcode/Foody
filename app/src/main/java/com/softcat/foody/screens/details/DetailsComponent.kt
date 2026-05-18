@@ -6,14 +6,13 @@ interface DetailsComponent {
 
     val model: StateFlow<DetailsStore.State>
 
-    fun addToFavourites()
-    fun removeFromFavourites()
+    fun changeFavouriteStatus()
 
     fun updateScore(newValue: Int)
 
     fun deleteScore()
 
-    fun changeIsCooked(newValue: Boolean)
+    fun changeIsCooked()
 
     fun nextStep()
     fun previousStep()

@@ -28,7 +28,7 @@ interface RecommendComponent {
 
     fun openRecipeDetails(recipeId: Int)
 
-    fun changeFavouriteStatus(recipeId: Int, isFavourite: Boolean)
+    fun changeFavouriteStatus(recipeId: Int)
 
     fun searchIngredients(query: String)
 

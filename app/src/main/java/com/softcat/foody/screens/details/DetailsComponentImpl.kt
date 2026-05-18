@@ -23,14 +23,9 @@ class DetailsComponentImpl @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override val model: StateFlow<DetailsStore.State> = store.stateFlow
 
-    override fun addToFavourites() {
-        Timber.i("${this::class.simpleName}: addToFavourites()")
-        store.accept(DetailsStore.Intent.AddToFavourites)
-    }
-
-    override fun removeFromFavourites() {
-        Timber.i("${this::class.simpleName}: removeFromFavourites()")
-        store.accept(DetailsStore.Intent.RemoveFromFavourites)
+    override fun changeFavouriteStatus() {
+        Timber.i("${this::class.simpleName}: changeFavouriteStatus()")
+        store.accept(DetailsStore.Intent.ChangeFavouriteStatus)
     }
 
     override fun updateScore(newValue: Int) {
@@ -43,9 +38,9 @@ class DetailsComponentImpl @AssistedInject constructor(
         store.accept(DetailsStore.Intent.RemoveScore)
     }
 
-    override fun changeIsCooked(newValue: Boolean) {
+    override fun changeIsCooked() {
         Timber.i("${this::class.simpleName}: changeIsCooked()")
-        store.accept(DetailsStore.Intent.ChangeIsCooked(newValue))
+        store.accept(DetailsStore.Intent.ChangeIsCooked)
     }
 
     override fun nextStep() {

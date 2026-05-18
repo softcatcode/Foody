@@ -138,7 +138,7 @@ class RecommendStoreFactory
                 is RecommendStore.Intent.ChangeSearchTagQuery -> dispatch(Msg.ChangeSearchTagQuery(intent.vewValue))
                 is RecommendStore.Intent.SearchIngredient -> searchIngredient(intent.query)
                 is RecommendStore.Intent.SearchTag -> searchTag(intent.query)
-                is RecommendStore.Intent.ChangeFavouriteStatus -> changeFavouriteStatus(intent.recipeId, intent.isFavourite)
+                is RecommendStore.Intent.ChangeFavouriteStatus -> changeFavouriteStatus(intent.recipeId)
                 RecommendStore.Intent.Recommend -> makeRecipesRecommendation()
                 RecommendStore.Intent.ShowAddRequiredIngredientDialog -> dispatch(Msg.ShowAddRequiredIngredientDialog)
                 RecommendStore.Intent.ShowAddRequiredTagDialog -> dispatch(Msg.ShowAddRequiredTagDialog)
@@ -160,13 +160,13 @@ class RecommendStoreFactory
             }
         }
 
-        private fun changeFavouriteStatus(
-            recipeId: Int,
-            isFavourite: Boolean,
-        ) {
+        private fun changeFavouriteStatus(recipeId: Int) {
             val userId = currentUser?.id ?: return
+            val content = state().resultStatus as? RecommendStore.State.RecommendationStatus.Content ?: return
+            val recipeModel = content.recipes.find { it.id == recipeId } ?: return
+
             scope.launch(Dispatchers.IO) {
-                if (isFavourite) {
+                if (recipeModel.isFavourite) {
                     favouritesUseCase.remove(userId, recipeId)
                 } else {
                     favouritesUseCase.add(userId, recipeId)

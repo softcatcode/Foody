@@ -152,8 +152,7 @@ fun SearchScreen(component: SearchComponent) {
         onCaloriesChange = component::changeCalories,
         onScoreClicked = component::changeScore,
         onCookedStateChange = component::changeIsCookedStatus,
-        removeFromFavourites = component::removeFromFavourites,
-        addToFavourites = component::addToFavourites,
+        changeFavouriteStatus = component::changeFavouriteStatus,
         closeFilterSheet = component::hideFiltersSheet,
         openFilterSheet = component::expandFiltersSheet,
         openRecipeDetails = component::openRecipeDetails,
@@ -174,8 +173,7 @@ private fun SearchContent(
     onCaloriesChange: (ClosedFloatingPointRange<Float>) -> Unit,
     onScoreClicked: (Int) -> Unit,
     onCookedStateChange: (FilterParams.TripleChoice) -> Unit,
-    removeFromFavourites: (Int) -> Unit,
-    addToFavourites: (Int) -> Unit,
+    changeFavouriteStatus: (Int) -> Unit,
     closeFilterSheet: () -> Unit,
     openFilterSheet: () -> Unit,
     onResetClicked: () -> Unit,
@@ -194,8 +192,7 @@ private fun SearchContent(
             is SearchStore.State.SearchStatus.Content -> {
                 RecipeGrid(
                     onRecipeClick = openRecipeDetails,
-                    addToFavourite = addToFavourites,
-                    removeFromFavourite = removeFromFavourites,
+                    changeFavouriteStatus = changeFavouriteStatus,
                     recipes = searchState.recipes,
                     topPadding = 64.dp
                 )
@@ -271,8 +268,7 @@ private fun Content_Preview() {
             onCaloriesChange = {},
             onTagClicked = {},
             onIngredientClicked = {},
-            removeFromFavourites = {},
-            addToFavourites = {},
+            changeFavouriteStatus = {},
             closeFilterSheet = {},
             openFilterSheet = {},
             openRecipeDetails = {},

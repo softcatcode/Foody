@@ -102,15 +102,7 @@ class ScoresStoreFactory @Inject constructor(
             Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
             when (intent) {
 
-                is ScoresStore.Intent.ChangeFavouriteStatus -> {
-                    scope.launch(Dispatchers.IO) {
-                        if (intent.isFavourite) {
-                            favouritesUseCase.remove(userId, intent.recipeId)
-                        } else {
-                            favouritesUseCase.add(userId, intent.recipeId)
-                        }
-                    }
-                }
+                is ScoresStore.Intent.ChangeFavouriteStatus -> changeIsFavourite(intent.recipeId)
 
                 is ScoresStore.Intent.ChangeValue -> {
                     scope.launch(Dispatchers.IO) {
@@ -128,6 +120,19 @@ class ScoresStoreFactory @Inject constructor(
                     dispatch(Msg.IsCookedFilterChanged(intent.newValue))
                     val scores = mapToScoresModels(scores, recipes, favouriteIds, intent.newValue)
                     dispatch(Msg.ScoresLoaded(scores))
+                }
+            }
+        }
+
+        private fun changeIsFavourite(recipeId: Int) {
+            val content = state().contentStatus as? ScoresStore.State.ContentStatus.Content ?: return
+            val scoreModel = content.scores.find { recipeId == it.recipeId } ?: return
+
+            scope.launch(Dispatchers.IO) {
+                if (scoreModel.isFavourite) {
+                    favouritesUseCase.remove(userId, recipeId)
+                } else {
+                    favouritesUseCase.add(userId, recipeId)
                 }
             }
         }

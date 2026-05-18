@@ -18,8 +18,7 @@ import androidx.compose.ui.unit.dp
 fun RecipeGrid(
     modifier: Modifier = Modifier,
     onRecipeClick: (Int) -> Unit,
-    addToFavourite: (Int) -> Unit,
-    removeFromFavourite: (Int) -> Unit,
+    changeFavouriteStatus: (Int) -> Unit,
     recipes: List<RecipeModel>,
     topPadding: Dp = 0.dp
 ) {
@@ -43,12 +42,7 @@ fun RecipeGrid(
                     .height(256.dp)
                     .padding(4.dp),
                 recipe = recipe,
-                onFavouriteClick = { currentStatus ->
-                    if (currentStatus)
-                        removeFromFavourite(recipe.id)
-                    else
-                        addToFavourite(recipe.id)
-                },
+                onFavouriteClick = { changeFavouriteStatus(recipe.id) },
                 onClick = onRecipeClick
             )
         }

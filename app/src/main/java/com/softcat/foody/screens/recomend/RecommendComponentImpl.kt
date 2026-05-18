@@ -91,9 +91,9 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.OpenRecipeDetails(recipeId))
     }
 
-    override fun changeFavouriteStatus(recipeId: Int, isFavourite: Boolean) {
-        Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId, $isFavourite)")
-        store.accept(RecommendStore.Intent.ChangeFavouriteStatus(recipeId, isFavourite))
+    override fun changeFavouriteStatus(recipeId: Int) {
+        Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId)")
+        store.accept(RecommendStore.Intent.ChangeFavouriteStatus(recipeId))
     }
 
     override fun searchIngredients(query: String) {

@@ -57,7 +57,7 @@ private fun ScoresContent(
     state: ScoresStore.State,
     back: () -> Unit,
     onScoreClick: (Int, Int) -> Unit,
-    onFavouriteButtonClick: (Int, Boolean) -> Unit,
+    onFavouriteButtonClick: (Int) -> Unit,
     isCookedChanged: (Boolean) -> Unit
 ) {
     Scaffold(
@@ -172,7 +172,7 @@ private fun ScoresList(
     modifier: Modifier = Modifier,
     scores: List<RecipeScoreModel>,
     onScoreClick: (Int, Int) -> Unit,
-    onFavouriteButtonClick: (Int, Boolean) -> Unit
+    onFavouriteButtonClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -189,7 +189,7 @@ private fun ScoresList(
                 modifier = Modifier,
                 score = score,
                 onScoreClicked = { onScoreClick(score.recipeId, it) },
-                onFavouriteIconClick = { onFavouriteButtonClick(score.recipeId, it) }
+                onFavouriteIconClick = { onFavouriteButtonClick(score.recipeId) }
             )
         }
         item {
@@ -244,7 +244,7 @@ fun Scores_Preview() {
             state = state,
             back = {},
             onScoreClick = { _, _ -> },
-            onFavouriteButtonClick = { _, _ -> },
+            onFavouriteButtonClick = {},
             isCookedChanged = {},
         )
     }

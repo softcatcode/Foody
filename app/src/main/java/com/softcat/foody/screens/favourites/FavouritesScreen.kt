@@ -186,9 +186,8 @@ fun FavouritesContent(
                 RecipeGrid(
                     modifier = Modifier.fillMaxSize(),
                     onRecipeClick = onRecipeClick,
-                    removeFromFavourite = removeFromFavourite,
+                    changeFavouriteStatus = removeFromFavourite,
                     recipes = contentState.recipes,
-                    addToFavourite = {},
                 )
             }
 
