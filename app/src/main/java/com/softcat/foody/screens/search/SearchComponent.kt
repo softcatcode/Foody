@@ -21,9 +21,7 @@ interface SearchComponent {
 
     fun search(query: String)
 
-    fun addToFavourites(recipeId: Int)
-
-    fun removeFromFavourites(recipeId: Int)
+    fun changeFavouriteStatus(recipeId: Int)
 
     fun openRecipeDetails(recipeId: Int)
 

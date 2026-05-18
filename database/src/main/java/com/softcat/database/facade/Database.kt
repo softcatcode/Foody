@@ -9,7 +9,6 @@ import com.softcat.database.remote.interfaces.AvatarsManager
 import com.softcat.database.remote.interfaces.FavouritesManager
 import com.softcat.database.local.dao.RecipeDao
 import com.softcat.database.local.dao.TagDao
-import com.softcat.database.models.AvgScoreDbModel
 import com.softcat.database.models.UserDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
 import com.softcat.database.remote.interfaces.ScoreManager

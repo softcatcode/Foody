@@ -140,7 +140,7 @@ fun RecipeCard(
     modifier: Modifier = Modifier,
     recipe: RecipeModel,
 
-    onFavouriteClick: (Boolean) -> Unit,
+    onFavouriteClick: () -> Unit,
     onClick: (Int) -> Unit
 ) {
     val colors = RecipeCardGradients.getColors()
@@ -197,7 +197,7 @@ fun SimpleStringValueCard(
         Text(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(horizontal = 12.dp, vertical = 6.dp),
+                .padding(horizontal = 12.dp, vertical = 4.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = if (isActive) White else color,

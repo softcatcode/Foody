@@ -203,7 +203,7 @@ private fun RecommendationCard(
     modifier: Modifier = Modifier,
     recipe: RecipeRecommendationModel,
 
-    onFavouriteButtonClick: (Boolean) -> Unit = {},
+    onFavouriteButtonClick: () -> Unit = {},
     onClick: () -> Unit = {},
 ) {
     Card(
@@ -265,7 +265,7 @@ private fun Content(
     recipes: List<RecipeRecommendationModel>,
 
     onRecipeClicked: (Int) -> Unit,
-    onFavouriteButtonClicked: (Int, Boolean) -> Unit,
+    onFavouriteButtonClicked: (Int) -> Unit,
     onRecommendButtonClick: () -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -282,8 +282,8 @@ private fun Content(
                     modifier = Modifier,
                     recipe = recipe,
                     onClick = { onRecipeClicked(recipe.id) },
-                    onFavouriteButtonClick = { isFavourite ->
-                        onFavouriteButtonClicked(recipe.id, isFavourite)
+                    onFavouriteButtonClick = {
+                        onFavouriteButtonClicked(recipe.id)
                     },
                 )
             }
@@ -305,7 +305,7 @@ private fun RecommendationResultContent(
 
     onRecommendButtonClick: () -> Unit,
     onRecipeClicked: (Int) -> Unit,
-    onFavouriteButtonClicked: (Int, Boolean) -> Unit,
+    onFavouriteButtonClicked: (Int) -> Unit,
 ) {
     when (resultStatus) {
         is RecommendationStatus.Content -> {
@@ -367,7 +367,7 @@ fun RecommendScreen(component: RecommendComponent) {
 fun RecommendContent(
     state: RecommendStore.State,
     onRecommendButtonClick: () -> Unit,
-    onFavouriteButtonClicked: (Int, Boolean) -> Unit,
+    onFavouriteButtonClicked: (Int) -> Unit,
     openRecipeDetails: (Int) -> Unit,
     removeTag: (String) -> Unit,
     removeIngredient: (String) -> Unit,
@@ -447,7 +447,7 @@ private fun Content_Preview() {
                 )
             ),
             onRecipeClicked = {},
-            onFavouriteButtonClicked = { _, _ -> },
+            onFavouriteButtonClicked = {},
             onRecommendButtonClick = {}
         )
     }
@@ -478,7 +478,7 @@ private fun Recommendations_Preview() {
         RecommendContent(
             state = state,
             onRecommendButtonClick = {},
-            onFavouriteButtonClicked = { _, _ -> },
+            onFavouriteButtonClicked = {},
             openRecipeDetails = {},
             removeTag = {},
             removeIngredient = {},

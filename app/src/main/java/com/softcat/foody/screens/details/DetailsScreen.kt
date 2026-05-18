@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,11 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.NutritionData
+import com.softcat.domain.entities.Recipe
+import com.softcat.domain.entities.RecipeTag
 import com.softcat.foody.R
 import com.softcat.foody.common.DetailsTopBar
 import com.softcat.foody.common.ElementsScrollableFlow
 import com.softcat.foody.common.Switcher
+import com.softcat.foody.ui.theme.FoodyTheme
 
 @Composable
 @Preview
@@ -102,7 +106,9 @@ private fun RecipeStep(
                 )
                 val scrollState = rememberScrollState()
                 Text(
-                    modifier = Modifier.fillMaxWidth().verticalScroll(scrollState),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
                     text = step,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center
@@ -255,71 +261,73 @@ fun RecipeExtraInfoCard(
 
 @Composable
 private fun RecipeScore(
-    scoreValue: Int?,
+    scoreValue: Int,
+    isScoreVisible: Boolean,
     deleteScore: () -> Unit = {},
     onScoreChanged: (Int) -> Unit = {}
 ) {
-    Row(
-        modifier = Modifier.wrapContentSize(),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        scoreValue?.let {
-            IconButton(
-                onClick = deleteScore,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.cross),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
-            }
-        }
-        if (scoreValue != null) {
-            repeat(5) {
-                if (it + 1 <= scoreValue) {
-                    IconButton(
-                        modifier = Modifier.size(32.dp),
-                        onClick = { onScoreChanged(it + 1) }
-                    ) {
-                        Image(
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            if (isScoreVisible) {
+                IconButton(
+                    onClick = deleteScore,
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.cross),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+                repeat(5) {
+                    if (it + 1 <= scoreValue) {
+                        IconButton(
                             modifier = Modifier.size(32.dp),
-                            painter = painterResource(R.drawable.star_filled),
-                            contentDescription = null
-                        )
-                    }
-                } else {
-                    IconButton(
-                        modifier = Modifier.size(32.dp),
-                        onClick = { onScoreChanged(it + 1) }
-                    ) {
-                        Icon(
+                            onClick = { onScoreChanged(it + 1) }
+                        ) {
+                            Image(
+                                modifier = Modifier.size(32.dp),
+                                painter = painterResource(R.drawable.star_filled),
+                                contentDescription = null
+                            )
+                        }
+                    } else {
+                        IconButton(
                             modifier = Modifier.size(32.dp),
-                            painter = painterResource(R.drawable.star_outlined),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary
-                        )
+                            onClick = { onScoreChanged(it + 1) }
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(32.dp),
+                                painter = painterResource(R.drawable.star_outlined),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
                     }
                 }
-            }
-        } else {
-            repeat(5) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(R.drawable.star_outlined),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                )
+            } else {
+                repeat(5) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(R.drawable.star_outlined),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                    )
+                }
             }
         }
+        val labelResId = if (isScoreVisible)
+            R.string.score else R.string.authorize_to_access_scores
+        Text(
+            text = stringResource(labelResId),
+            color = MaterialTheme.colorScheme.tertiary,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
-    val labelResId = if (scoreValue != null)
-        R.string.score else R.string.authorize_to_access_scores
-    Text(
-        text = stringResource(labelResId),
-        color = MaterialTheme.colorScheme.tertiary,
-        style = MaterialTheme.typography.bodyMedium
-    )
 }
 
 @Composable
@@ -327,8 +335,9 @@ private fun RecipeScore(
 private fun UserScoringData(
     modifier: Modifier = Modifier,
     isCooked: Boolean = false,
-    scoreValue: Int? = 3,
-    onIsCookedChanged: (Boolean) -> Unit = {},
+    scoreValue: Int = 3,
+    isScoreVisible: Boolean = true,
+    onIsCookedChanged: () -> Unit = {},
     deleteScore: () -> Unit = {},
     onScoreChanged: (Int) -> Unit = {}
 ) {
@@ -353,31 +362,48 @@ private fun UserScoringData(
         RecipeScore(
             scoreValue = scoreValue,
             deleteScore = deleteScore,
-            onScoreChanged = onScoreChanged
+            onScoreChanged = onScoreChanged,
+            isScoreVisible = isScoreVisible
         )
     }
 }
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun DetailsContent(component: DetailsComponent) {
+fun DetailsScreen(component: DetailsComponent) {
     val model = component.model.collectAsState()
-    val state = model.value
-    val isFavourite = when (state.scoring) {
-        is DetailsStore.State.UserScoring.UserAuthorized -> state.scoring.isFavourite
-        DetailsStore.State.UserScoring.UserIsAbsent -> null
-    }
+
+    DetailsContent(
+        state = model.value,
+        back = component::back,
+        changeFavouriteStatus = component::changeFavouriteStatus,
+        previousStep = component::previousStep,
+        nextStep = component::nextStep,
+        changeIsCooked = component::changeIsCooked,
+        deleteScore = component::deleteScore,
+        updateScore = component::updateScore
+    )
+}
+
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+private fun DetailsContent(
+    state: DetailsStore.State,
+    back: () -> Unit,
+    changeFavouriteStatus: () -> Unit,
+    previousStep: () -> Unit,
+    nextStep: () -> Unit,
+    changeIsCooked: () -> Unit,
+    deleteScore: () -> Unit,
+    updateScore: (Int) -> Unit,
+) {
     Scaffold(
         topBar = {
             DetailsTopBar(
-                isFavourite = isFavourite,
-                onBackClicked = { component.back() },
-                onChangeFavouriteStatus = {oldFavouriteStatus ->
-                    if (oldFavouriteStatus)
-                        component.removeFromFavourites()
-                    else
-                        component.addToFavourites()
-                }
+                isFavourite = state.isFavourite,
+                isFavouriteVisible = state.isFavouriteVisible,
+                onBackClicked = back,
+                onChangeFavouriteStatus = changeFavouriteStatus
             )
         }
     ) { paddingValues ->
@@ -391,12 +417,17 @@ fun DetailsContent(component: DetailsComponent) {
         ) {
             val ingredientStrings = state.recipe.ingredients.map { it.name }
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-            val maxStepHeight = screenHeight * 0.3f
+
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp),
+                text = state.recipe.name,
+                style = MaterialTheme.typography.headlineSmall,
+                color = Black
+            )
             ElementsScrollableFlow(
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .weight(1.5f)
-                    .fillMaxHeight(0.5f),
+                    .heightIn(max = screenHeight * 0.25f),
                 elements = ingredientStrings,
                 color = MaterialTheme.colorScheme.primary,
                 title = stringResource(R.string.ingredients),
@@ -405,31 +436,81 @@ fun DetailsContent(component: DetailsComponent) {
             )
             Spacer(Modifier.height(16.dp))
             RecipeStep(
-                modifier = Modifier.heightIn(max = maxStepHeight),
+                modifier = Modifier.heightIn(max = screenHeight * 0.25f),
                 stepNumber = state.stepNumber,
                 stepCount = state.recipe.steps.size,
                 step = state.recipe.steps[state.stepNumber - 1],
-                onPreviousStepClicked = { component.previousStep() },
-                onNextStepClicked = { component.nextStep() }
+                onPreviousStepClicked = previousStep,
+                onNextStepClicked = nextStep
             )
             Spacer(Modifier.height(16.dp))
             RecipeExtraInfoCard(
-                modifier = Modifier.weight(1.5f),
+                modifier = Modifier.heightIn(max = screenHeight * 0.25f),
                 data = state.recipe.nutrition,
                 cookingTime = state.recipe.minutes
             )
-            val scoreValue = when (state.scoring) {
-                is DetailsStore.State.UserScoring.UserAuthorized -> state.scoring.score ?: 0
-                DetailsStore.State.UserScoring.UserIsAbsent -> null
-            }
             UserScoringData(
                 modifier = Modifier,
                 isCooked = state.recipe.isCooked,
-                scoreValue = scoreValue,
-                onIsCookedChanged = component::changeIsCooked,
-                deleteScore = component::deleteScore,
-                onScoreChanged = component::updateScore
+                scoreValue = state.score,
+                isScoreVisible = state.isScoreVisible,
+                onIsCookedChanged = changeIsCooked,
+                deleteScore = deleteScore,
+                onScoreChanged = updateScore
             )
         }
+    }
+}
+
+@Composable
+@Preview
+private fun Details_Preview() {
+    val state = DetailsStore.State(
+        recipe = Recipe(
+            id = 1,
+            name = "Chocolate cake",
+            description = "A simple recipe for your birthday.",
+            steps = listOf("Put flour into the bowl."),
+            ingredients = listOf(
+                Ingredient(1, "flour"),
+                Ingredient(2, "butter"),
+                Ingredient(3, "sugar")
+            ),
+            tags = listOf(
+                RecipeTag("occasion"),
+                RecipeTag("chocolate"),
+                RecipeTag("90-minutes-or-less")
+            ),
+            languageTag = "EN",
+            isCooked = true,
+            minutes = 85,
+            nutrition = NutritionData(
+                calories = 1190f,
+                fat = 300f,
+                sugar = 500f,
+                sodium = 4f,
+                protein = 5f,
+                saturatedFat = 150f,
+                carbohydrates = 150f
+            )
+        ),
+        stepNumber = 1,
+        isScoreVisible = true,
+        score = 4,
+        isFavourite = true,
+        isFavouriteVisible = true,
+    )
+
+    FoodyTheme {
+        DetailsContent(
+            state = state,
+            back = {},
+            changeFavouriteStatus = {},
+            previousStep = {},
+            nextStep = {},
+            changeIsCooked = {},
+            deleteScore = {},
+            updateScore = {},
+        )
     }
 }

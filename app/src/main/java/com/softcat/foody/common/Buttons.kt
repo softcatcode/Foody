@@ -71,13 +71,13 @@ fun FilterButton(
 fun AddToFavouritesButton(
     modifier: Modifier = Modifier,
     isFavourite: Boolean = false,
-    onClick: (Boolean) -> Unit = {}
+    onClick: () -> Unit = {}
 ) {
     val resId = if (isFavourite) R.drawable.bookmark_filled else R.drawable.bookmark_outlined
     val color = if (isFavourite) Red else Gray
     IconButton(
         modifier = modifier,
-        onClick ={ onClick(isFavourite) }
+        onClick = onClick
     ) {
         Icon(
             modifier = Modifier.fillMaxSize(),

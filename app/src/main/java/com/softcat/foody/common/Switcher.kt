@@ -30,7 +30,7 @@ import com.softcat.domain.entities.FilterParams
 fun Switcher(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
-    onCheckedChanged: (Boolean) -> Unit = {},
+    onCheckedChanged: () -> Unit = {},
 ) {
     val size = 64.dp
     val squareOffset by animateDpAsState(
@@ -52,7 +52,7 @@ fun Switcher(
                 shape = RoundedCornerShape(cornerRadius)
             ).clickable(
                 enabled = true,
-                onClick = { onCheckedChanged(!checked) },
+                onClick = onCheckedChanged,
                 role = Role.Switch,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(color = color.copy(alpha = 0.2f))

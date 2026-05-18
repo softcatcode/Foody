@@ -45,14 +45,9 @@ class SearchComponentImpl @AssistedInject constructor(
         store.accept(SearchStore.Intent.Search(query))
     }
 
-    override fun addToFavourites(recipeId: Int) {
+    override fun changeFavouriteStatus(recipeId: Int) {
         Timber.i("${this::class.simpleName} addToFavourites($recipeId)")
-        store.accept(SearchStore.Intent.AddToFavourites(recipeId))
-    }
-
-    override fun removeFromFavourites(recipeId: Int) {
-        Timber.i("${this::class.simpleName} addToFavourites($recipeId)")
-        store.accept(SearchStore.Intent.RemoveFromFavourites(recipeId))
+        store.accept(SearchStore.Intent.ChangeFavouriteStatus(recipeId))
     }
 
     override fun openRecipeDetails(recipeId: Int) {

@@ -35,9 +35,7 @@ interface SearchStore: Store<SearchStore.Intent, SearchStore.State, SearchStore.
     sealed interface Intent {
         data class Search(val query: String): Intent
 
-        data class AddToFavourites(val recipeId: Int): Intent
-
-        data class RemoveFromFavourites(val recipeId: Int): Intent
+        data class ChangeFavouriteStatus(val recipeId: Int): Intent
 
         data class ChangeScore(val newValue: Int): Intent
 

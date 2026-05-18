@@ -1,7 +1,6 @@
 package com.softcat.foody.screens.initialization
 
 import android.app.Application
-import android.content.Context
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory

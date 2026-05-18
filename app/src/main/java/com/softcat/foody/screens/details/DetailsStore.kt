@@ -6,14 +6,10 @@ import com.softcat.domain.entities.Recipe
 interface DetailsStore: Store<DetailsStore.Intent, DetailsStore.State, Nothing> {
 
     sealed interface Intent {
-        data object AddToFavourites: Intent
-        data object RemoveFromFavourites: Intent
-
+        data object ChangeFavouriteStatus: Intent
         data class UpdateScore(val newValue: Int): Intent
         data object RemoveScore: Intent
-
-        data class ChangeIsCooked(val newValue: Boolean): Intent
-
+        data object ChangeIsCooked: Intent
         data object NextStep: Intent
         data object PreviousStep: Intent
     }
@@ -21,15 +17,9 @@ interface DetailsStore: Store<DetailsStore.Intent, DetailsStore.State, Nothing> 
     data class State(
         val recipe: Recipe,
         val stepNumber: Int,
-        val scoring: UserScoring
-    ) {
-        sealed interface UserScoring {
-            data class UserAuthorized(
-                val score: Int?,
-                val isFavourite: Boolean
-            ): UserScoring
-
-            data object UserIsAbsent: UserScoring
-        }
-    }
+        val isScoreVisible: Boolean,
+        val score: Int,
+        val isFavourite: Boolean,
+        val isFavouriteVisible: Boolean
+    )
 }

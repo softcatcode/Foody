@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -73,42 +74,41 @@ fun ElementsScrollableFlow(
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
-                item {
-                    FlowRow(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                    ) {
-                        elements.forEach {
-                            SimpleStringValueCard(
-                                modifier = modifier,
-                                isActive = true,
-                                label = it,
-                                color = color,
-                                onClick = { removeElementClicked(it) }
-                            )
-                        }
-                        if (showAddButton) {
-                            AddElementButton(
-                                modifier = Modifier.padding(horizontal = 0.dp),
-                                onClick = addElementClicked,
-                                color = color
-                            )
-                        }
+                FlowRow(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    elements.forEach {
+                        SimpleStringValueCard(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            isActive = true,
+                            label = it,
+                            color = color,
+                            onClick = { removeElementClicked(it) }
+                        )
+                    }
+                    if (showAddButton) {
+                        AddElementButton(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            onClick = addElementClicked,
+                            color = color
+                        )
                     }
                 }
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                        content = appendixContent
-                    )
-                }
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                    content = appendixContent
+                )
             }
         }
     }

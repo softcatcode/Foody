@@ -122,16 +122,24 @@ class SearchStoreFactory @Inject constructor(
                     search(query)
             }
             lifecycle.doOnStop {
-                userCollectingJob?.cancel()
                 favouritesCollectingJob?.cancel()
+                userCollectingJob?.cancel()
+
+                favouritesCollectingJob = null
+                userCollectingJob = null
             }
         }
 
         private fun userCollector(newUser: User?) {
             user = newUser
+            favouritesCollectingJob?.cancel()
+            val userId = user?.id
             updateFavourites(null)
-            user?.id?.let { userId ->
-                favouritesCollectingJob = scope.launch {
+
+            favouritesCollectingJob = if (userId == null) {
+                null
+            } else {
+                scope.launch {
                     favouritesUseCase.observe(userId).collect { recipes ->
                         val favourites = recipes.map { it.id }.toSet()
                         updateFavourites(favourites)
@@ -143,8 +151,7 @@ class SearchStoreFactory @Inject constructor(
         override fun executeIntent(intent: SearchStore.Intent) {
             Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
             when (intent) {
-                is SearchStore.Intent.AddToFavourites -> addToFavourites(intent.recipeId)
-                is SearchStore.Intent.RemoveFromFavourites -> removeFromFavourites(intent.recipeId)
+                is SearchStore.Intent.ChangeFavouriteStatus -> changeFavouriteStatus(intent.recipeId)
                 is SearchStore.Intent.Search -> search(intent.query)
                 is SearchStore.Intent.ChangeSearchQuery -> dispatch(Msg.ChangeSearchQuery(intent.newValue))
                 is SearchStore.Intent.TagClicked -> tagClicked(intent.name)
@@ -245,17 +252,17 @@ class SearchStoreFactory @Inject constructor(
             }
         }
 
-        private fun addToFavourites(recipeId: Int) {
+        private fun changeFavouriteStatus(recipeId: Int) {
             val userId = user?.id ?: return
-            scope.launch(Dispatchers.IO) {
-                favouritesUseCase.add(userId, recipeId)
-            }
-        }
+            val content = state().searchStatus as? SearchStore.State.SearchStatus.Content ?: return
+            val recipeModel = content.recipes.find { it.id == recipeId } ?: return
 
-        private fun removeFromFavourites(recipeId: Int) {
-            val userId = user?.id ?: return
             scope.launch(Dispatchers.IO) {
-                favouritesUseCase.remove(userId, recipeId)
+                if (recipeModel.isFavourite) {
+                    favouritesUseCase.remove(userId, recipeId)
+                } else {
+                    favouritesUseCase.add(userId, recipeId)
+                }
             }
         }
 

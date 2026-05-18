@@ -9,7 +9,7 @@ interface ScoresStore: Store<ScoresStore.Intent, ScoresStore.State, Nothing> {
 
         data class ChangeValue(val recipeId: Int, val newValue: Int): Intent
 
-        data class ChangeFavouriteStatus(val recipeId: Int, val isFavourite: Boolean): Intent
+        data class ChangeFavouriteStatus(val recipeId: Int): Intent
 
         data class ChangeIsCookedFilter(val newValue: Boolean): Intent
     }

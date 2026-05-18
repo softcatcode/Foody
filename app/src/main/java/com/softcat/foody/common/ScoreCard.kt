@@ -26,7 +26,7 @@ fun ScoreCard(
     modifier: Modifier = Modifier,
     score: RecipeScoreModel,
     onScoreClicked: (Int) -> Unit = {},
-    onFavouriteIconClick: (Boolean) -> Unit = {}
+    onFavouriteIconClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier,

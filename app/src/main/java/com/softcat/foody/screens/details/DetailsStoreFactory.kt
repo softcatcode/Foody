@@ -35,21 +35,25 @@ class DetailsStoreFactory @Inject constructor(
             initialState = DetailsStore.State(
                 recipe = recipe,
                 stepNumber = 1,
-                scoring = DetailsStore.State.UserScoring.UserIsAbsent
+                isScoreVisible = false,
+                score = 0,
+                isFavourite = false,
+                isFavouriteVisible = false
             ),
             executorFactory = { DetailsExecutor(recipe.id, lifecycle) },
             reducer = DetailsReducer
         ) {}
 
     sealed interface Msg {
-        data class ChangeIdFavourite(val newValue: Boolean): Msg
+        data class SetIsFavourite(val newValue: Boolean): Msg
 
-        data class ChangeIsCooked(val newValue: Boolean): Msg
+        data class SetIsCooked(val newValue: Boolean): Msg
 
-        data class ChangeScore(val newValue: Int): Msg
+        data class SetScore(val newValue: Int): Msg
 
         data object NextStep: Msg
         data object PreviousStep: Msg
+        data object UserIsLost: Msg
     }
 
     private inner class DetailsExecutor(
@@ -72,7 +76,7 @@ class DetailsStoreFactory @Inject constructor(
                 isCookedCollectJob = scope.launch {
                     recipeUseCase.observeIsCooked(recipeId).collect {
                         withContext(Dispatchers.Main) {
-                            dispatch(Msg.ChangeIsCooked(it))
+                            dispatch(Msg.SetIsCooked(it))
                         }
                     }
                 }
@@ -82,23 +86,36 @@ class DetailsStoreFactory @Inject constructor(
                 scoreCollectJob?.cancel()
                 isCookedCollectJob?.cancel()
                 userCollectJob?.cancel()
+
+                favouritesCollectingJob = null
+                scoreCollectJob = null
+                isCookedCollectJob = null
+                userCollectJob = null
             }
         }
 
         private fun userCollector(user: User?) {
             userId = user?.id
-            userId?.let { userId ->
+            favouritesCollectingJob?.cancel()
+            scoreCollectJob?.cancel()
+
+            val currentUserId = userId
+            if (currentUserId == null) {
+                favouritesCollectingJob = null
+                scoreCollectJob = null
+                dispatch(Msg.UserIsLost)
+            } else {
                 favouritesCollectingJob = scope.launch(Dispatchers.IO) {
-                    favouritesUseCase.observeIsFavourite(userId, recipeId).collect {
+                    favouritesUseCase.observeIsFavourite(currentUserId, recipeId).collect {
                         withContext(Dispatchers.Main) {
-                            dispatch(Msg.ChangeIdFavourite(it))
+                            dispatch(Msg.SetIsFavourite(it))
                         }
                     }
                 }
                 scoreCollectJob = scope.launch(Dispatchers.IO) {
-                    scoreUseCase.observeScoreValue(userId, recipeId).collect {
+                    scoreUseCase.observeScoreValue(currentUserId, recipeId).collect {
                         withContext(Dispatchers.Main) {
-                            dispatch(Msg.ChangeScore(it))
+                            dispatch(Msg.SetScore(it))
                         }
                     }
                 }
@@ -109,15 +126,11 @@ class DetailsStoreFactory @Inject constructor(
             Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
             when (intent) {
 
-                DetailsStore.Intent.AddToFavourites -> userId?.let {
-                    scope.launch(Dispatchers.IO) {
-                        favouritesUseCase.add(it, recipeId)
-                    }
-                }
+                DetailsStore.Intent.ChangeFavouriteStatus -> updateIsFavourite()
 
-                is DetailsStore.Intent.ChangeIsCooked -> {
+                DetailsStore.Intent.ChangeIsCooked -> {
                     scope.launch {
-                        recipeUseCase.setIsCooked(recipeId, intent.newValue)
+                        recipeUseCase.setIsCooked(recipeId, !state().recipe.isCooked)
                     }
                 }
 
@@ -125,15 +138,10 @@ class DetailsStoreFactory @Inject constructor(
                     if (state().stepNumber < state().recipe.steps.size)
                         dispatch(Msg.NextStep)
                 }
+
                 DetailsStore.Intent.PreviousStep -> {
                     if (state().stepNumber > 1)
                         dispatch(Msg.PreviousStep)
-                }
-
-                DetailsStore.Intent.RemoveFromFavourites -> userId?.let {
-                    scope.launch(Dispatchers.IO) {
-                        favouritesUseCase.remove(it, recipeId)
-                    }
                 }
 
                 is DetailsStore.Intent.UpdateScore -> userId?.let {
@@ -149,6 +157,20 @@ class DetailsStoreFactory @Inject constructor(
                 }
             }
         }
+
+        private fun updateIsFavourite() {
+            val id = userId ?: return
+            if (!state().isFavouriteVisible)
+                return
+
+            scope.launch(Dispatchers.IO) {
+                if (state().isFavourite) {
+                    favouritesUseCase.remove(id, recipeId)
+                } else {
+                    favouritesUseCase.add(id, recipeId)
+                }
+            }
+        }
     }
 
     private object DetailsReducer: Reducer<DetailsStore.State, Msg> {
@@ -157,38 +179,12 @@ class DetailsStoreFactory @Inject constructor(
             Timber.i("${this::class.simpleName}: Message is obtained: $msg")
 
             return when (msg) {
-                is Msg.ChangeIdFavourite -> {
-                    if (scoring is DetailsStore.State.UserScoring.UserAuthorized)
-                        copy(scoring = scoring.copy(isFavourite = msg.newValue))
-                    else
-                        copy(
-                            scoring = DetailsStore.State.UserScoring.UserAuthorized(
-                                score = null, isFavourite = msg.newValue
-                            )
-                        )
-                }
-                is Msg.ChangeIsCooked -> copy(recipe = recipe.copy(isCooked = msg.newValue))
-
-                is Msg.ChangeScore -> {
-                    if (scoring is DetailsStore.State.UserScoring.UserAuthorized)
-                        copy(scoring = scoring.copy(score = msg.newValue))
-                    else
-                        this
-                }
-
-                Msg.NextStep -> {
-                    if (stepNumber < recipe.steps.size)
-                        copy(stepNumber = stepNumber + 1)
-                    else
-                        this
-                }
-
-                Msg.PreviousStep -> {
-                    if (stepNumber > 1)
-                        copy(stepNumber = stepNumber - 1)
-                    else
-                        this
-                }
+                is Msg.SetIsFavourite -> copy(isFavourite = msg.newValue)
+                is Msg.SetIsCooked -> copy(recipe = recipe.copy(isCooked = msg.newValue))
+                is Msg.SetScore -> copy(isScoreVisible = true, score = msg.newValue)
+                Msg.NextStep -> copy(stepNumber = stepNumber + 1)
+                Msg.PreviousStep -> copy(stepNumber = stepNumber - 1)
+                Msg.UserIsLost -> copy(isScoreVisible = false, isFavouriteVisible = false)
             }
         }
     }
