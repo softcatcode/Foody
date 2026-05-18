@@ -86,32 +86,40 @@ class DetailsStoreFactory @Inject constructor(
                 scoreCollectJob?.cancel()
                 isCookedCollectJob?.cancel()
                 userCollectJob?.cancel()
+
+                favouritesCollectingJob = null
+                scoreCollectJob = null
+                isCookedCollectJob = null
+                userCollectJob = null
             }
         }
 
         private fun userCollector(user: User?) {
             userId = user?.id
             favouritesCollectingJob?.cancel()
-            favouritesCollectingJob = null
             scoreCollectJob?.cancel()
-            scoreCollectJob = null
 
-            userId?.let { userId ->
+            val currentUserId = userId
+            if (currentUserId == null) {
+                favouritesCollectingJob = null
+                scoreCollectJob = null
+                dispatch(Msg.UserIsLost)
+            } else {
                 favouritesCollectingJob = scope.launch(Dispatchers.IO) {
-                    favouritesUseCase.observeIsFavourite(userId, recipeId).collect {
+                    favouritesUseCase.observeIsFavourite(currentUserId, recipeId).collect {
                         withContext(Dispatchers.Main) {
                             dispatch(Msg.SetIsFavourite(it))
                         }
                     }
                 }
                 scoreCollectJob = scope.launch(Dispatchers.IO) {
-                    scoreUseCase.observeScoreValue(userId, recipeId).collect {
+                    scoreUseCase.observeScoreValue(currentUserId, recipeId).collect {
                         withContext(Dispatchers.Main) {
                             dispatch(Msg.SetScore(it))
                         }
                     }
                 }
-            } ?: dispatch(Msg.UserIsLost)
+            }
         }
 
         override fun executeIntent(intent: DetailsStore.Intent) {

@@ -1,6 +1,5 @@
 package com.softcat.database.remote.implementations
 
-import android.util.Log
 import com.softcat.database.BuildConfig
 import com.softcat.database.facade.readFloat32LE
 import com.softcat.database.facade.readInt32LE
@@ -12,18 +11,13 @@ import com.softcat.database.local.dao.RecipeDao
 import com.softcat.database.local.dao.TagDao
 import com.softcat.database.models.AvgScoreDbModel
 import com.softcat.database.models.IngredientDbModel
-import com.softcat.database.models.RecipeDbModel
 import com.softcat.database.models.TagDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL

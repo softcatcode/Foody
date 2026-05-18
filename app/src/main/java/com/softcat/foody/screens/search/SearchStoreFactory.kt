@@ -122,16 +122,24 @@ class SearchStoreFactory @Inject constructor(
                     search(query)
             }
             lifecycle.doOnStop {
-                userCollectingJob?.cancel()
                 favouritesCollectingJob?.cancel()
+                userCollectingJob?.cancel()
+
+                favouritesCollectingJob = null
+                userCollectingJob = null
             }
         }
 
         private fun userCollector(newUser: User?) {
             user = newUser
+            favouritesCollectingJob?.cancel()
+            val userId = user?.id
             updateFavourites(null)
-            user?.id?.let { userId ->
-                favouritesCollectingJob = scope.launch {
+
+            favouritesCollectingJob = if (userId == null) {
+                null
+            } else {
+                scope.launch {
                     favouritesUseCase.observe(userId).collect { recipes ->
                         val favourites = recipes.map { it.id }.toSet()
                         updateFavourites(favourites)

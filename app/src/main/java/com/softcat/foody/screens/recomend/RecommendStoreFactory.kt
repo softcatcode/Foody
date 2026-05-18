@@ -99,8 +99,11 @@ class RecommendStoreFactory
                 }
             }
             lifecycle.doOnStop {
-                userCollectingJob?.cancel()
                 favouritesCollectingJob?.cancel()
+                userCollectingJob?.cancel()
+
+                favouritesCollectingJob = null
+                userCollectingJob = null
             }
         }
 
@@ -149,8 +152,13 @@ class RecommendStoreFactory
 
         private fun lastEnteredUserCollector(newUser: User?) {
             currentUser = newUser
-            newUser?.id?.let { userId ->
-                favouritesCollectingJob = scope.launch(Dispatchers.IO) {
+            favouritesCollectingJob?.cancel()
+            val userId = newUser?.id
+
+            favouritesCollectingJob = if (userId == null) {
+                null
+            } else {
+                scope.launch(Dispatchers.IO) {
                     favouritesUseCase.observeFavouriteIds(userId).collect {
                         withContext(Dispatchers.Main) {
                             updateFavourites(it)

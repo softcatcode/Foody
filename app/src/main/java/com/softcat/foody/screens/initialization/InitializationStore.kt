@@ -1,6 +1,5 @@
 package com.softcat.foody.screens.initialization
 
-import android.content.Context
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface InitializationStore: Store<InitializationStore.Intent, InitializationStore.State, InitializationStore.Label> {

@@ -89,15 +89,17 @@ class FavouritesStoreFactory @Inject constructor(
         init {
             lifecycle.doOnStart {
                 userCollectingJob = scope.launch {
-                    userUseCase.observeLastEnteredUser().collect {
-                        lastEnteredUserCollector(it)
-                    }
+                    userUseCase.observeLastEnteredUser().collect(::lastEnteredUserCollector)
                 }
             }
             lifecycle.doOnStop {
-                userCollectingJob?.cancel()
                 scoresCollectingJob?.cancel()
                 favouritesCollectingJob?.cancel()
+                userCollectingJob?.cancel()
+
+                scoresCollectingJob = null
+                favouritesCollectingJob = null
+                userCollectingJob = null
             }
         }
 
@@ -158,11 +160,15 @@ class FavouritesStoreFactory @Inject constructor(
         private suspend fun lastEnteredUserCollector(newUser: User?) {
             user = newUser
             val userId = user?.id
+            favouritesCollectingJob?.cancel()
+            scoresCollectingJob?.cancel()
 
             if (userId == null) {
                 withContext(Dispatchers.Main) {
                     dispatch(Msg.UserIsAbsent)
                 }
+                favouritesCollectingJob = null
+                scoresCollectingJob = null
             } else {
                 favouritesCollectingJob = scope.launch(Dispatchers.IO) {
                     favouritesUseCase.observe(userId).collect {

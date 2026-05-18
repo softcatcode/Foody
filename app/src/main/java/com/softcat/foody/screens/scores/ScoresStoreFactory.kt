@@ -77,6 +77,9 @@ class ScoresStoreFactory @Inject constructor(
             lifecycle.doOnStop {
                 scoresCollectingJob?.cancel()
                 favouritesCollectingJob?.cancel()
+
+                scoresCollectingJob = null
+                favouritesCollectingJob = null
             }
         }
 

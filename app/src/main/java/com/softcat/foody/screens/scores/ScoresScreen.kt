@@ -1,13 +1,11 @@
 package com.softcat.foody.screens.scores
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,8 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Blue
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +33,6 @@ import com.softcat.foody.common.ScoreCard
 import com.softcat.foody.common.ScoresTopBar
 import com.softcat.foody.screens.scores.ScoresStore.State.ContentStatus.Content
 import com.softcat.foody.ui.theme.FoodyTheme
-import com.softcat.foody.ui.theme.LightGreen
 
 @Composable
 fun ScoresScreen(component: ScoresComponent) {
