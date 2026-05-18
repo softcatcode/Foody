@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -416,6 +417,13 @@ private fun DetailsContent(
         ) {
             val ingredientStrings = state.recipe.ingredients.map { it.name }
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp),
+                text = state.recipe.name,
+                style = MaterialTheme.typography.headlineSmall,
+                color = Black
+            )
             ElementsScrollableFlow(
                 modifier = Modifier
                     .padding(top = 8.dp)
