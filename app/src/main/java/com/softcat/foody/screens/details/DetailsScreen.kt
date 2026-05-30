@@ -481,7 +481,6 @@ private fun Details_Preview() {
                 RecipeTag("chocolate"),
                 RecipeTag("90-minutes-or-less")
             ),
-            languageTag = "EN",
             isCooked = true,
             minutes = 85,
             nutrition = NutritionData(
