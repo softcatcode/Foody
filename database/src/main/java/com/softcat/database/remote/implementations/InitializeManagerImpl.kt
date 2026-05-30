@@ -8,9 +8,11 @@ import com.softcat.database.facade.readString
 import com.softcat.database.local.dao.AvgScoreDao
 import com.softcat.database.local.dao.IngredientDao
 import com.softcat.database.local.dao.RecipeDao
+import com.softcat.database.local.dao.RecipeVectorDao
 import com.softcat.database.local.dao.TagDao
 import com.softcat.database.models.AvgScoreDbModel
 import com.softcat.database.models.IngredientDbModel
+import com.softcat.database.models.RecipeVectorDbModel
 import com.softcat.database.models.TagDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -28,7 +31,8 @@ class InitializeManagerImpl @Inject constructor(
     private val recipeDao: RecipeDao,
     private val ingredientDao: IngredientDao,
     private val tagDao: TagDao,
-    private val avgScoreDao: AvgScoreDao
+    private val avgScoreDao: AvgScoreDao,
+    private val recipeVectorDao: RecipeVectorDao
 ): InitializeManager {
 
     private val scope =  CoroutineScope(Dispatchers.IO)
@@ -53,6 +57,18 @@ class InitializeManagerImpl @Inject constructor(
             }
             downloadFileAndProcess(RECIPES_FILE_URL) { stream ->
                 readRecipes(stream, requiredCount)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun initializeRecommendationModel(): Result<Unit> {
+        recipeVectorDao.clear()
+        return try {
+            downloadFileAndProcess(RECIPE_VECTORS_URL) { stream ->
+                readRecipeVectors(stream)
             }
             Result.success(Unit)
         } catch (e: Exception) {
@@ -102,6 +118,24 @@ class InitializeManagerImpl @Inject constructor(
         }
     }
 
+    private suspend fun readRecipeVectors(stream: InputStream) {
+        BufferedInputStream(stream, 64 * 1024).use { buffered ->
+            var n = 1045
+            val chunkSize = 500
+            while (n > 0) {
+                val count = min(chunkSize, n)
+                val recipeVectors = List(count) {
+                    RecipeVectorDbModel(
+                        id = buffered.readInt32LE(),
+                        vector = List(2999) { buffered.readFloat32LE() }
+                    )
+                }
+                recipeVectorDao.insertAll(recipeVectors)
+                n -= count
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun downloadFileAndProcess(fileUrl: String, onStreamReady: suspend (InputStream) -> Unit) {
         withContext(Dispatchers.IO) {
@@ -129,5 +163,6 @@ class InitializeManagerImpl @Inject constructor(
         private val INGREDIENTS_FILE_URL = URL_PATTERN.format("ingredients")
         private val RECIPES_FILE_URL = URL_PATTERN.format("recipes")
         private val AVG_SCORES_FILE_URL = URL_PATTERN.format("avg_scores")
+        private val RECIPE_VECTORS_URL = URL_PATTERN.format("recipe_vectors")
     }
 }

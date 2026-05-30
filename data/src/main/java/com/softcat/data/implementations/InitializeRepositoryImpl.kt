@@ -15,8 +15,7 @@ class InitializeRepositoryImpl @Inject constructor(
 ): InitializeRepository {
 
     override suspend fun initializeDatabase(requiredCount: Int) {
-        database.initializeRecipes(requiredCount)
-        database.initializeAvgScores()
+        database.initialize(requiredCount)
         setInitialized(true)
     }
 

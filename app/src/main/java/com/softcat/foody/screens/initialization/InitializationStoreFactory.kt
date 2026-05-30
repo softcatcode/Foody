@@ -114,9 +114,9 @@ class InitializationStoreFactory @Inject constructor(
             OptionModel(
                 title = application
                     .getString(R.string.add_recipes_title)
-                    .format(1000),
+                    .format(1045),
                 text = application.getString(R.string.small_db_description),
-                value = 1000,
+                value = 1045,
                 isSelected = false
             )
         )
