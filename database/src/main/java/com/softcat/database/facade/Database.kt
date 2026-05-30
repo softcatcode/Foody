@@ -99,12 +99,17 @@ class Database @Inject constructor(
 
     override suspend fun searchTag(query: String, limit: Int) = tagDao.search(query, limit)
 
-    override suspend fun initializeRecipes(requiredCount: Int): Result<Unit> {
-        return initializeManager.initializeRecipes(requiredCount)
-    }
-
-    override suspend fun initializeAvgScores(): Result<Unit> {
-        return initializeManager.initializeAvgScores()
+    override suspend fun initialize(requiredCount: Int): Result<Unit> {
+        initializeManager.initializeRecipes(requiredCount).getOrElse {
+            return Result.failure(it)
+        }
+        initializeManager.initializeAvgScores().getOrElse {
+            return Result.failure(it)
+        }
+        initializeManager.initializeRecommendationModel().getOrElse {
+            return Result.failure(it)
+        }
+        return Result.success(Unit)
     }
 
     override suspend fun getIngredients(limit: Int) = ingredientDao.getSample(limit)

@@ -42,9 +42,7 @@ interface DatabaseFacade {
 
     suspend fun searchTag(query: String, limit: Int): List<TagDbModel>
 
-    suspend fun initializeRecipes(requiredCount: Int): Result<Unit>
-
-    suspend fun initializeAvgScores(): Result<Unit>
+    suspend fun initialize(requiredCount: Int): Result<Unit>
 
     suspend fun getIngredients(limit: Int): List<IngredientDbModel>
 

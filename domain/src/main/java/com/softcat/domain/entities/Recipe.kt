@@ -10,7 +10,6 @@ data class Recipe(
     val steps: List<String>,
     val ingredients: List<Ingredient>,
     val tags: List<RecipeTag>,
-    val languageTag: String,
     val isCooked: Boolean,
     val minutes: Int,
     val nutrition: NutritionData

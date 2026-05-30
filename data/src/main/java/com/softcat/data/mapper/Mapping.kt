@@ -75,7 +75,6 @@ class RecipeMapper @Inject constructor(
                 id = model.id,
                 name = model.name,
                 description = model.description,
-                languageTag = "EN",
                 isCooked = model.isCooked,
                 ingredients = ingredients,
                 tags = tags,
