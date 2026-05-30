@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -106,12 +107,12 @@ fun NavigationBar(
 @Composable
 @Preview
 fun SimpleAppBar(
-    text: String = "Hello world!"
+    text: String = "Hello world!",
+    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets
 ) {
     TopAppBar(
         expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
-        windowInsets = TopAppBarDefaults.windowInsets
-            .only(WindowInsetsSides.Horizontal),
+        windowInsets = windowInsets,
         title = {
             Text(
                 modifier = Modifier.fillMaxWidth(),
