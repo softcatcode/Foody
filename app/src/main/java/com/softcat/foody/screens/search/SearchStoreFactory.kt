@@ -82,6 +82,8 @@ class SearchStoreFactory @Inject constructor(
         data class IngredientsLoaded(val ingredients: List<String>): Action
 
         data class TagsLoaded(val tags: List<String>): Action
+
+        data class InitialRecipeSampleLoaded(val recipes: List<Recipe>): Action
     }
 
     private inner class SearchBootstrapper: CoroutineBootstrapper<Action>() {
@@ -94,6 +96,10 @@ class SearchStoreFactory @Inject constructor(
                 val tags = tagUseCase.getTags(1000).map { it.name }
                 withContext(Dispatchers.Main) {
                     dispatch(Action.TagsLoaded(tags))
+                }
+                val initialSearchResult = recipeUseCase.search("")
+                withContext(Dispatchers.Main) {
+                    dispatch(Action.InitialRecipeSampleLoaded(initialSearchResult))
                 }
             }
         }
@@ -227,15 +233,27 @@ class SearchStoreFactory @Inject constructor(
             when (action) {
                 is Action.IngredientsLoaded -> dispatch(Msg.IngredientsLoaded(action.ingredients))
                 is Action.TagsLoaded -> dispatch(Msg.TagsLoaded(action.tags))
+                is Action.InitialRecipeSampleLoaded -> initialRecipeSampleLoaded(action.recipes)
+            }
+        }
+
+        private fun initialRecipeSampleLoaded(recipes: List<Recipe>) {
+            if (state().searchStatus is SearchStore.State.SearchStatus.Initial) {
+                savedSearchResult = recipes
+                val recipesModels = mapToRecipeModels(
+                    recipes,
+                    savedAvgScores,
+                    favouriteIds,
+                    state().filtersState.filterParameters
+                )
+                dispatch(Msg.ChangeSearchContent(recipesModels))
             }
         }
 
         private fun search(query: String) {
             dispatch(Msg.LoadingStarted)
-            val userId = user?.id
-
             scope.launch(Dispatchers.IO) {
-                val searchResult = recipeUseCase.search(userId, query)
+                val searchResult = recipeUseCase.search(query)
                 val avgScores = scoreUseCase.getAvgScores(searchResult.map { it.id })
                 savedSearchResult = searchResult
                 savedAvgScores = avgScores

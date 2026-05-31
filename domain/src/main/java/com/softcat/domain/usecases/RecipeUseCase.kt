@@ -12,12 +12,12 @@ import javax.inject.Inject
 class RecipeUseCase @Inject constructor(
     private val repository: RecipeRepository
 ) {
-    suspend fun search(
-        userId: String?,
-        query: String,
-    ): List<Recipe> {
-        Timber.i("${this::class.simpleName} search($userId, $query) invoked")
-        return repository.search(userId, query)
+    suspend fun search(query: String): List<Recipe> {
+        Timber.i("${this::class.simpleName} search($query) invoked")
+        return if (query.isNotBlank())
+            repository.search(query)
+        else
+            repository.getRecipeSample()
     }
 
     suspend fun recommend(

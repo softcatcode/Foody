@@ -7,7 +7,9 @@ import com.softcat.domain.entities.Score
 import kotlinx.coroutines.flow.StateFlow
 
 interface RecipeRepository {
-    suspend fun search(userId: String?, query: String): List<Recipe>
+    suspend fun search(query: String): List<Recipe>
+
+    suspend fun getRecipeSample(): List<Recipe>
 
     suspend fun recommend(
         scores: List<Score>,

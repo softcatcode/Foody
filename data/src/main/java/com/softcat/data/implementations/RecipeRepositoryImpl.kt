@@ -21,11 +21,12 @@ class RecipeRepositoryImpl @Inject constructor(
     private val isCookedFlow = MutableStateFlow(false)
     private var selectedRecipe: Int? = null
 
-    override suspend fun search(
-        userId: String?,
-        query: String,
-    ): List<Recipe> {
-        return recipeMapper.toEntities(database.searchRecipe(query, limit = 150))
+    override suspend fun search(query: String): List<Recipe> {
+        return recipeMapper.toEntities(database.searchRecipe(query, RECIPE_LIMIT))
+    }
+
+    override suspend fun getRecipeSample(): List<Recipe> {
+        return recipeMapper.toEntities(database.getRecipeSample(RECIPE_LIMIT))
     }
 
     override suspend fun recommend(
@@ -54,5 +55,9 @@ class RecipeRepositoryImpl @Inject constructor(
         selectedRecipe = recipeId
         isCookedFlow.value = database.isRecipeCooked(recipeId)
         return isCookedFlow
+    }
+
+    companion object {
+        private const val RECIPE_LIMIT = 300
     }
 }

@@ -39,6 +39,8 @@ interface DatabaseFacade {
 
     suspend fun searchRecipe(query: String, limit: Int): List<RecipeDbModel>
 
+    suspend fun getRecipeSample(limit: Int): List<RecipeDbModel>
+
     suspend fun searchIngredient(query: String, limit: Int): List<IngredientDbModel>
 
     suspend fun searchTag(query: String, limit: Int): List<TagDbModel>
