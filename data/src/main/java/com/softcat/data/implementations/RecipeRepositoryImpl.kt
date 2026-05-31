@@ -1,6 +1,7 @@
 package com.softcat.data.implementations
 
-import com.softcat.data.mapper.RecipeMapper
+import com.example.recommender.implementations.RecipeMapper
+import com.example.recommender.interfaces.RecommendationManager
 import com.softcat.database.facade.DatabaseFacade
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 class RecipeRepositoryImpl @Inject constructor(
     private val database: DatabaseFacade,
-    private val recipeMapper: RecipeMapper
+    private val recipeMapper: RecipeMapper,
+    private val recommender: RecommendationManager
 ): RecipeRepository {
 
     private val isCookedFlow = MutableStateFlow(false)
@@ -29,9 +31,10 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun recommend(
         scores: List<Score>,
         ingredients: List<Ingredient>,
+        maxAbsentIngredients: Int,
         tags: List<RecipeTag>
     ): List<Recipe> {
-        return emptyList()
+        return recommender.getRecommendation(scores, ingredients, maxAbsentIngredients, tags)
     }
 
     override suspend fun get(recipeIds: List<Int>): List<Recipe> {

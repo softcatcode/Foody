@@ -12,6 +12,7 @@ interface RecipeRepository {
     suspend fun recommend(
         scores: List<Score>,
         ingredients: List<Ingredient>,
+        maxAbsentIngredients: Int,
         tags: List<RecipeTag>
     ): List<Recipe>
 

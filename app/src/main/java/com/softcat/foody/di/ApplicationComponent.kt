@@ -3,6 +3,7 @@ package com.softcat.foody.di
 import android.app.Application
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.example.recommender.di.RecommenderModule
 import com.softcat.data.di.ApplicationScope
 import com.softcat.data.di.DaoModule
 import com.softcat.data.di.DatabaseModule
@@ -15,7 +16,8 @@ import dagger.Component
         RepositoryModule::class,
         DatabaseModule::class,
         DaoModule::class,
-        MVIModule::class
+        MVIModule::class,
+        RecommenderModule::class
     ]
 )
 @ApplicationScope

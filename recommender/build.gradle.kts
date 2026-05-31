@@ -1,16 +1,18 @@
+import org.gradle.internal.classpath.Instrumented.systemProperty
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.softcat.data"
+    namespace = "com.example.recommender"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        minSdk = 35
+        minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -29,25 +31,34 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests.all {
+            // Применяем правильный синтаксис для Kotlin DSL
+            systemProperty("org.bytedeco.javacpp.platform", "macosx-arm64")
+            systemProperty("org.bytedeco.javacpp.platform.compiler", "macosx-arm64")
+
+            // На всякий случай включаем логирование загрузчика
+            systemProperty("org.bytedeco.javacpp.logger.debug", "true")
+        }
+    }
 }
 
 dependencies {
-    implementation(project(":domain"))
-    implementation(project(":database"))
-    implementation(project(":recommender"))
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
+    implementation(libs.multik.core.v030)
+    implementation(libs.multik.kotlin)
+
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
-    implementation(libs.timber)
-    implementation(libs.datastore)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(project(":domain"))
+    implementation(project(":database"))
 }

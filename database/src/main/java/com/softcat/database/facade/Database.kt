@@ -8,6 +8,7 @@ import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.remote.interfaces.AvatarsManager
 import com.softcat.database.remote.interfaces.FavouritesManager
 import com.softcat.database.local.dao.RecipeDao
+import com.softcat.database.local.dao.RecipeVectorDao
 import com.softcat.database.local.dao.TagDao
 import com.softcat.database.models.UserDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
@@ -24,6 +25,7 @@ class Database @Inject constructor(
     private val ingredientDao: IngredientDao,
     private val tagDao: TagDao,
     private val avgScoreDao: AvgScoreDao,
+    private val recipeVectorDao: RecipeVectorDao,
     private val initializeManager: InitializeManager
 ): DatabaseFacade {
 
@@ -120,6 +122,8 @@ class Database @Inject constructor(
 
     override suspend fun getRecipes(recipeIds: List<Int>) = recipeIds.mapNotNull { recipeDao.get(it) }
 
+    override suspend fun getAllRecipes() = recipeDao.getAll()
+
     override suspend fun setRecipeIsCooked(recipeId: Int, value: Boolean): Result<Unit> {
         return try {
             Result.success(recipeDao.setIsCooked(recipeId, value))
@@ -139,4 +143,6 @@ class Database @Inject constructor(
     }
 
     override suspend fun exit() = usersManager.exit()
+
+    override suspend fun getRecipeVectors() = recipeVectorDao.getAll()
 }

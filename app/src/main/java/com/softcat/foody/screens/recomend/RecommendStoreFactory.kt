@@ -189,6 +189,7 @@ class RecommendStoreFactory
                 val recipes = recipeUseCase.recommend(
                     scores = scores,
                     ingredients = selectedIngredients,
+                    maxAbsentIngredients = state().maxAbsentIngredients,
                     tags = selectedTags
                 ).map { recipe ->
                     RecipeRecommendationModel(

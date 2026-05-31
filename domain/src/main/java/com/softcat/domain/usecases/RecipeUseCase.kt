@@ -23,10 +23,11 @@ class RecipeUseCase @Inject constructor(
     suspend fun recommend(
         scores: List<Score>,
         ingredients: List<Ingredient>,
+        maxAbsentIngredients: Int,
         tags: List<RecipeTag>
     ): List<Recipe> {
         Timber.i("${this::class.simpleName} recommend(List(${scores.size}), $ingredients, $tags) invoked")
-        return repository.recommend(scores, ingredients, tags)
+        return repository.recommend(scores, ingredients, maxAbsentIngredients, tags)
     }
 
     suspend fun get(recipeIds: List<Int>): List<Recipe> {

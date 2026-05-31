@@ -1,6 +1,6 @@
 package com.softcat.data.implementations
 
-import com.softcat.data.mapper.RecipeMapper
+import com.example.recommender.implementations.RecipeMapper
 import com.softcat.database.facade.DatabaseFacade
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.interfaces.FavouritesRepository
