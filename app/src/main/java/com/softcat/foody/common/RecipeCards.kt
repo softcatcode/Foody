@@ -139,11 +139,12 @@ private fun RecipeScore(
 fun RecipeCard(
     modifier: Modifier = Modifier,
     recipe: RecipeModel,
+    index: Int,
 
     onFavouriteClick: () -> Unit,
     onClick: (Int) -> Unit
 ) {
-    val colors = RecipeCardGradients.getColors()
+    val colors = RecipeCardGradients.getColors(index)
     Card(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(
@@ -255,6 +256,7 @@ fun RecipeCard_Preview() {
                 score = "3.45",
                 scoreVisible = true,
             ),
+            index = 2,
             onFavouriteClick = {},
             onClick = {},
         )

@@ -42,10 +42,8 @@ object RecipeCardGradients {
         )
     )
 
-    private var index = 0
-
-    fun getColors(): RecipeCardColors {
-        index = (index + 1) % gradients.size
-        return gradients[index]
+    fun getColors(index: Int): RecipeCardColors {
+        val colorIndex = (index + 1) % gradients.size
+        return gradients[colorIndex]
     }
 }
