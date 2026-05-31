@@ -88,4 +88,5 @@
     <string name="medium_db_description">A medium database that is balanced with resource efficiency and size of recipe sample.</string>
     <string name="big_db_description">A big database that takes more resources and a few minutes for initialization. Use if you are not restrained by memory and want to access all the recipes.</string>
     <string name="continue_title">Continue</string>
+    <string name="initialization_error">Initialization error</string>
 </resources>

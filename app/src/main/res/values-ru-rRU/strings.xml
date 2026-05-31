@@ -88,4 +88,5 @@
     <string name="medium_db_description">Компромисс между используемой памятью и количеством рецептов. Инициализация не займёт больше минуты.</string>
     <string name="big_db_description">Большая база рецептов, которая требует несколько минут на подготовку. Используй, если не ограничен по памяти и хочешь получить доступ ко всем рецептам.</string>
     <string name="continue_title">Продолжить</string>
+    <string name="initialization_error">Ошибка инициализации</string>
 </resources>

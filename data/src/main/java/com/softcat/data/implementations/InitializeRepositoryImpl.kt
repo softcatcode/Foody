@@ -14,9 +14,12 @@ class InitializeRepositoryImpl @Inject constructor(
     private val datastore: DataStore<Preferences>
 ): InitializeRepository {
 
-    override suspend fun initializeDatabase(requiredCount: Int) {
-        database.initialize(requiredCount)
+    override suspend fun initializeDatabase(requiredCount: Int): Result<Unit> {
+        database.initialize(requiredCount).getOrElse {
+            return Result.failure(it)
+        }
         setInitialized(true)
+        return Result.success(Unit)
     }
 
     override suspend fun isInitialized(): Boolean {

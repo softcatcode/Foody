@@ -77,9 +77,17 @@ class InitializationStoreFactory @Inject constructor(
 
             dispatch(Msg.LoadingStarted)
             scope.launch(Dispatchers.IO) {
-                initUseCase(requiredCount = value)
-                withContext(Dispatchers.Main) {
-                    publish(InitializationStore.Label.Initialized)
+                initUseCase(requiredCount = value).onSuccess {
+                    withContext(Dispatchers.Main) {
+                        publish(InitializationStore.Label.Initialized)
+                    }
+                }.onFailure {
+                    val title = application.getString(R.string.initialization_error)
+                    val msg = "$title: ${it.message} <- ${it.cause?.message}"
+                    withContext(Dispatchers.Main) {
+                        publish(InitializationStore.Label.Error(msg))
+                        dispatch(Msg.OptionsUpdated(getInitialOptions()))
+                    }
                 }
             }
         }

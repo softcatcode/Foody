@@ -110,7 +110,7 @@ class RecommendationManagerImpl @Inject constructor(
         val numbers = scores.map { it.value.toFloat() }
         val scoreValues = mk.ndarray(numbers)
         val scoredVectors = scores.mapNotNull { score ->
-            val index = recipeIds.indexOfFirst { it == score.value }
+            val index = recipeIds.indexOfFirst { it == score.recipeId }
             if (index == -1)
                 null
             else
