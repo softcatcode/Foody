@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softcat.foody.R
@@ -54,7 +56,9 @@ private fun IngredientCard(
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = White
+            color = White,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -68,7 +72,6 @@ private fun RecipeData(
     Column(
         modifier = Modifier
             .wrapContentSize()
-            .padding(bottom = 2.dp)
             .then(modifier)
     ) {
         Row {
@@ -80,6 +83,7 @@ private fun RecipeData(
                 fontWeight = FontWeight.Bold,
                 maxLines = 2
             )
+            Spacer(Modifier.width(4.dp))
             if (recipe.scoreVisible) {
                 RecipeScore(
                     modifier = Modifier,
@@ -95,18 +99,24 @@ private fun RecipeData(
             maxLines = 4
         )
         Spacer(Modifier.height(10.dp))
-        FlowRow(
+        Box(
             modifier = Modifier
                 .weight(3f)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(15.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            contentAlignment = Alignment.BottomStart
         ) {
-            recipe.ingredients.forEach {
-                IngredientCard(
-                    label = it,
-                    gradient = ingredientGradient,
-                )
+            FlowRow(
+                modifier = Modifier
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                recipe.ingredients.forEach {
+                    IngredientCard(
+                        label = it,
+                        gradient = ingredientGradient,
+                    )
+                }
             }
         }
     }
@@ -159,7 +169,9 @@ fun RecipeCard(
                 .padding(16.dp)
         ) {
             RecipeData(
-                modifier = Modifier.align(Alignment.TopStart).padding(bottom = 32.dp),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(bottom = 24.dp),
                 recipe = recipe,
                 ingredientGradient = colors.ingredientGradient,
             )
