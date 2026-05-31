@@ -81,7 +81,10 @@ class SearchStoreFactory @Inject constructor(
 
         data class TagsLoaded(val tags: List<String>): Action
 
-        data class InitialRecipeSampleLoaded(val recipes: List<Recipe>): Action
+        data class InitialRecipeSampleLoaded(
+            val recipes: List<Recipe>,
+            val scores: Map<Int, Float>
+        ): Action
     }
 
     private inner class SearchBootstrapper: CoroutineBootstrapper<Action>() {
@@ -96,8 +99,9 @@ class SearchStoreFactory @Inject constructor(
                     dispatch(Action.TagsLoaded(tags))
                 }
                 val initialSearchResult = recipeUseCase.search("")
+                val avgScores = scoreUseCase.getAvgScores(initialSearchResult.map { it.id })
                 withContext(Dispatchers.Main) {
-                    dispatch(Action.InitialRecipeSampleLoaded(initialSearchResult))
+                    dispatch(Action.InitialRecipeSampleLoaded(initialSearchResult, avgScores))
                 }
             }
         }
@@ -245,16 +249,18 @@ class SearchStoreFactory @Inject constructor(
                     visibleTags = action.tags
                     dispatch(Msg.TagsSuggestionChanged(action.tags))
                 }
-                is Action.InitialRecipeSampleLoaded -> initialRecipeSampleLoaded(action.recipes)
+                is Action.InitialRecipeSampleLoaded ->
+                    initialRecipeSampleLoaded(action.recipes, action.scores)
             }
         }
 
-        private fun initialRecipeSampleLoaded(recipes: List<Recipe>) {
+        private fun initialRecipeSampleLoaded(recipes: List<Recipe>, scores: Map<Int, Float>) {
             if (state().searchStatus is SearchStore.State.SearchStatus.Initial) {
                 savedSearchResult = recipes
+                savedAvgScores = scores
                 val recipesModels = mapToRecipeModels(
                     recipes,
-                    savedAvgScores,
+                    scores,
                     favouriteIds,
                     state().filtersState.filterParameters
                 )
