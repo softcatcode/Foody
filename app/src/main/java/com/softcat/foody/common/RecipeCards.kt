@@ -81,7 +81,8 @@ private fun RecipeData(
                 style = MaterialTheme.typography.labelLarge,
                 color = White,
                 fontWeight = FontWeight.Bold,
-                maxLines = 2
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.width(4.dp))
             if (recipe.scoreVisible) {
@@ -96,7 +97,8 @@ private fun RecipeData(
             text = recipe.description,
             style = MaterialTheme.typography.bodyMedium,
             color = White,
-            maxLines = 4
+            maxLines = 4,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(10.dp))
         Box(
@@ -109,7 +111,7 @@ private fun RecipeData(
                 modifier = Modifier
                     .wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(15.dp),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 recipe.ingredients.forEach {
                     IngredientCard(
@@ -160,13 +162,13 @@ fun RecipeCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         ),
-        shape = RoundedCornerShape(10),
+        shape = RoundedCornerShape(5),
         onClick = { onClick(recipe.id) }
     ) {
         Box(
             modifier = Modifier
                 .background(colors.mainGradient)
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             RecipeData(
                 modifier = Modifier
