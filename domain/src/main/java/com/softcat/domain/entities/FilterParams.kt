@@ -1,9 +1,8 @@
 package com.softcat.domain.entities
 
 data class FilterParams(
-    val reqTags: List<String> = emptyList(),
-    val reqIngredients: List<String> = emptyList(),
-    val maxAbsentCount: Int = Int.MAX_VALUE,
+    val ingredients: List<String> = emptyList(),
+    val tags: List<String> = emptyList(),
     val duration: ClosedFloatingPointRange<Float> = 0f..MAX_DURATION,
     val calories: ClosedFloatingPointRange<Float> = 0f..MAX_CALORIES,
     val minScore: Int = 1,

@@ -9,11 +9,11 @@ fun List<Recipe>.filter(params: FilterParams, scores: Map<Int, Float>?): List<Re
             return@filter false
         if (params.isCooked == FilterParams.TripleChoice.Yes && !recipe.isCooked)
             return@filter false
-        params.reqTags.forEach { tag ->
+        params.tags.forEach { tag ->
             if (recipe.tags.find { it.name == tag } == null)
                 return@filter false
         }
-        params.reqIngredients.forEach { ingredient ->
+        params.ingredients.forEach { ingredient ->
             if (recipe.ingredients.find { it.name == ingredient } == null)
                 return@filter false
         }

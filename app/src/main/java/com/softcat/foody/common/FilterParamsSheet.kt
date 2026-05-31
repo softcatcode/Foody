@@ -121,8 +121,8 @@ private fun FilterParamsSheetTitle(
 @Composable
 fun TagFlow(
     modifier: Modifier = Modifier,
-    visibleValues: List<String>,
-    selectedValues: Set<String>,
+    suggestedValues: List<String>,
+    selectedValues: List<String>,
     onTagClicked: (String) -> Unit = {}
 ) {
     LazyRow(
@@ -132,10 +132,17 @@ fun TagFlow(
             .then(modifier),
         horizontalArrangement = Arrangement.spacedBy(15.dp),
     ) {
-        items(items = visibleValues, key = { it }) {
+        items(items = selectedValues, key = { it }) {
             SimpleTagCard(
                 name = it,
-                isActive = it in selectedValues,
+                isActive = true,
+                onClick = { onTagClicked(it) }
+            )
+        }
+        items(items = suggestedValues, key = { it }) {
+            SimpleTagCard(
+                name = it,
+                isActive = false,
                 onClick = { onTagClicked(it) }
             )
         }
@@ -145,8 +152,8 @@ fun TagFlow(
 @Composable
 fun IngredientFlow(
     modifier: Modifier = Modifier,
-    visibleValues: List<String>,
-    selectedIds: Set<String>,
+    selectedValues: List<String>,
+    otherValues: List<String>,
     onIngredientClicked: (String) -> Unit
 ) {
     LazyRow(
@@ -156,10 +163,17 @@ fun IngredientFlow(
             .then(modifier),
         horizontalArrangement = Arrangement.spacedBy(15.dp),
     ) {
-        items(items = visibleValues, key = { it }) {
+        items(items = selectedValues, key = { it }) {
             SimpleIngredientCard(
                 name = it,
-                isActive = it in selectedIds,
+                isActive = true,
+                onClick = { onIngredientClicked(it) }
+            )
+        }
+        items(items = otherValues, key = { it }) {
+            SimpleIngredientCard(
+                name = it,
+                isActive = false,
                 onClick = { onIngredientClicked(it) }
             )
         }
@@ -203,8 +217,8 @@ fun FilterParamsSheet(
     onDismiss: () -> Unit = {},
     sheetState: SheetState = rememberModalBottomSheetState(),
     params: FilterParams = FilterParams(),
-    tags: List<String>,
-    ingredients: List<String>,
+    suggestedTags: List<String>,
+    suggestedIngredients: List<String>,
     isExpanded: Boolean = true,
     onScoreClicked: (Int) -> Unit = {},
     onCaloriesChange: (ClosedFloatingPointRange<Float>) -> Unit = {},
@@ -303,9 +317,8 @@ fun FilterParamsSheet(
                     )
                     Spacer(Modifier.height(4.dp))
                     TagFlow(
-                        modifier = Modifier,
-                        visibleValues = tags,
-                        selectedValues = params.reqTags.toSet(),
+                        suggestedValues = suggestedTags,
+                        selectedValues = params.tags,
                         onTagClicked = onTagClicked,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -314,9 +327,8 @@ fun FilterParamsSheet(
                     )
                     Spacer(Modifier.height(4.dp))
                     IngredientFlow(
-                        modifier = Modifier,
-                        visibleValues = ingredients,
-                        selectedIds = params.reqIngredients.toSet(),
+                        selectedValues = params.ingredients,
+                        otherValues = suggestedIngredients,
                         onIngredientClicked = onIngredientClicked
                     )
                 }

@@ -223,8 +223,8 @@ private fun SearchContent(
             modifier = Modifier.fillMaxWidth(),
             onDismiss = closeFilterSheet,
             params = state.filtersState.filterParameters,
-            tags = state.filtersState.visibleTags,
-            ingredients = state.filtersState.visibleIngredients,
+            suggestedTags = state.filtersState.suggestedTags,
+            suggestedIngredients = state.filtersState.suggestedIngredients,
             isExpanded = state.filtersState.expanded,
             onScoreClicked = onScoreClicked,
             onCaloriesChange = onCaloriesChange,
@@ -260,8 +260,8 @@ private fun Content_Preview() {
         searchQuery = "query",
         filtersState = SearchStore.State.FiltersSheetState(
             filterParameters = FilterParams(),
-            visibleTags = listOf("ice", "breakfast", "15-minutes-or-less", "easy"),
-            visibleIngredients = listOf("apple", "butter", "milk", "honey"),
+            suggestedTags = listOf("ice", "breakfast", "15-minutes-or-less", "easy"),
+            suggestedIngredients = listOf("apple", "butter", "milk", "honey"),
             expanded = false
         ),
         searchStatus = SearchStore.State.SearchStatus.Content(recipes)
