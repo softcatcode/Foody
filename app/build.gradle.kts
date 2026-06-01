@@ -85,6 +85,9 @@ dependencies {
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
 
+    implementation(libs.gif)
+    implementation(libs.coil.gif)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
