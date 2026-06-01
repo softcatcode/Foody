@@ -90,8 +90,8 @@ class RecommendationManagerImpl @Inject constructor(
                     return@filter false
             }
             var missIngredient = 0
-            ingredients.forEach {
-                if (!recipe.ingredients.contains(it)) {
+            recipe.ingredients.forEach {
+                if (!ingredients.contains(it)) {
                     ++missIngredient
                     if (missIngredient > maxAbsentIngredients)
                         return@filter false
