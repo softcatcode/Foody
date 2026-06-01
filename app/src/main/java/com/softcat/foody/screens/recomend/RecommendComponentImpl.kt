@@ -24,7 +24,7 @@ class RecommendComponentImpl @AssistedInject constructor(
 ): RecommendComponent, ComponentContext by componentContext {
 
     private val store = instanceKeeper.getStore { storeFactory.create(componentContext.lifecycle) }
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val model: StateFlow<RecommendStore.State> = store.stateFlow

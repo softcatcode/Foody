@@ -184,14 +184,16 @@ class RecommendStoreFactory
 
         private fun makeRecipesRecommendation() {
             val userId = currentUser?.id ?: return
+            dispatch(Msg.RecommendationLoading)
             scope.launch(Dispatchers.Default) {
                 val scores = scoreUseCase.observe(userId).first()
-                val recipes = recipeUseCase.recommend(
+                recommendation = recipeUseCase.recommend(
                     scores = scores,
                     ingredients = selectedIngredients,
                     maxAbsentIngredients = state().maxAbsentIngredients,
                     tags = selectedTags
-                ).map { recipe ->
+                )
+                val recipeModels = recommendation.map { recipe ->
                     RecipeRecommendationModel(
                         id = recipe.id,
                         name = recipe.name,
@@ -201,7 +203,7 @@ class RecommendStoreFactory
                     )
                 }
                 withContext(Dispatchers.Main) {
-                    dispatch(Msg.RecommendationReady(recipes))
+                    dispatch(Msg.RecommendationReady(recipeModels))
                 }
             }
         }

@@ -233,11 +233,11 @@ private fun RecommendationCard(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .wrapContentHeight(),
+                        .heightIn(min = 32.dp, max = 196.dp),
                 ) {
                     Text(
                         text = recipe.name,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = Black,
                     )
                     Text(
@@ -276,6 +276,7 @@ private fun Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(
                 items = recipes,
