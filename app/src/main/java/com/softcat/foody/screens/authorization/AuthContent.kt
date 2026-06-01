@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -40,7 +41,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
 import com.softcat.foody.R
 import com.softcat.foody.common.AuthTopBar
 import com.softcat.foody.common.ProgressBar
@@ -243,6 +247,15 @@ private fun Enter(
     else
         PasswordVisualTransformation()
 
+    val context = LocalContext.current
+    val gifImageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(GifDecoder.Factory())
+            }
+            .build()
+    }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -252,7 +265,11 @@ private fun Enter(
     ) {
         AsyncImage(
             modifier = Modifier.size(192.dp),
-            model = R.drawable.lock_animation,
+            model = ImageRequest.Builder(context)
+                .data(R.drawable.lock_animation)
+                .crossfade(false)
+                .build(),
+            imageLoader = gifImageLoader,
             contentDescription = null,
             contentScale = ContentScale.Fit
         )
@@ -321,6 +338,14 @@ private fun Registration(
     var repeatedPasswordShown by remember { mutableStateOf(false) }
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val maxTextFieldHeight = screenHeight * 0.15f
+    val context = LocalContext.current
+    val gifImageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(GifDecoder.Factory())
+            }
+            .build()
+    }
 
     Column(
         modifier = Modifier
@@ -343,7 +368,11 @@ private fun Registration(
             )
             AsyncImage(
                 modifier = Modifier.size(48.dp).align(Alignment.BottomEnd),
-                model = R.drawable.plus_animation,
+                model = ImageRequest.Builder(context)
+                    .data(R.drawable.plus_animation)
+                    .crossfade(false)
+                    .build(),
+                imageLoader = gifImageLoader,
                 contentDescription = null,
                 contentScale = ContentScale.Fit
             )
