@@ -69,12 +69,30 @@ class Database @Inject constructor(
         name: String,
         email: String,
         password: String
-    ) = usersManager.createUser(name, email, password)
+    ): Result<UserDbModel> {
+        val result = usersManager.createUser(name, email, password)
+        if (result.isSuccess) {
+            val userId = result.getOrNull()?.id
+            userId?.let {
+                scoreManager.updateScoreCache(it)
+            }
+        }
+        return result
+    }
 
     override suspend fun verifyUser(
         email: String,
         password: String
-    ) = usersManager.enter(email, password)
+    ): Result<UserDbModel> {
+        val result = usersManager.enter(email, password)
+        if (result.isSuccess) {
+            val userId = result.getOrNull()?.id
+            userId?.let {
+                scoreManager.updateScoreCache(it)
+            }
+        }
+        return result
+    }
 
     override suspend fun modifyUser(user: UserDbModel) = usersManager.modify(user)
 
@@ -144,7 +162,12 @@ class Database @Inject constructor(
         }
     }
 
-    override suspend fun exit() = usersManager.exit()
+    override suspend fun exit() {
+        usersManager.exit()
+        scoreManager.updateScoreCache(null)
+    }
 
     override suspend fun getRecipeVectors() = recipeVectorDao.getAll()
+
+    override suspend fun updateScoreCache(userId: String?) = scoreManager.updateScoreCache(userId)
 }

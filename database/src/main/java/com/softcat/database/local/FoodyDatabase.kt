@@ -10,11 +10,13 @@ import com.softcat.database.local.dao.AvgScoreDao
 import com.softcat.database.local.dao.IngredientDao
 import com.softcat.database.local.dao.RecipeDao
 import com.softcat.database.local.dao.RecipeVectorDao
+import com.softcat.database.local.dao.ScoreDao
 import com.softcat.database.local.dao.TagDao
 import com.softcat.database.models.AvgScoreDbModel
 import com.softcat.database.models.IngredientDbModel
 import com.softcat.database.models.RecipeDbModel
 import com.softcat.database.models.RecipeVectorDbModel
+import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.models.TagDbModel
 import com.softcat.database.models.VectorConverters
 
@@ -24,7 +26,8 @@ import com.softcat.database.models.VectorConverters
         IngredientDbModel::class,
         TagDbModel::class,
         AvgScoreDbModel::class,
-        RecipeVectorDbModel::class
+        RecipeVectorDbModel::class,
+        ScoreDbModel::class
     ],
     version = 1,
     exportSchema = false
@@ -35,6 +38,7 @@ abstract class FoodyDatabase : RoomDatabase() {
     abstract fun getRecipeDao(): RecipeDao
     abstract fun getRecipeVectorDao(): RecipeVectorDao
     abstract fun getIngredientDao(): IngredientDao
+    abstract fun getScoresDao(): ScoreDao
 
     abstract fun getTagDao(): TagDao
 

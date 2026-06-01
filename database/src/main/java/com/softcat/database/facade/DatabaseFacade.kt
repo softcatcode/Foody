@@ -66,4 +66,6 @@ interface DatabaseFacade {
     suspend fun exit()
 
     suspend fun getRecipeVectors(): List<RecipeVectorDbModel>
+
+    suspend fun updateScoreCache(userId: String?): Result<Unit>
 }

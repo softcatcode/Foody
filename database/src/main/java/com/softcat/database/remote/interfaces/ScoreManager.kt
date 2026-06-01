@@ -11,4 +11,6 @@ interface ScoreManager {
     suspend fun get(userId: String): Result<List<ScoreDbModel>>
 
     suspend fun getScoreValue(userId: String, recipeId: Int): Result<Int>
+
+    suspend fun updateScoreCache(userId: String?): Result<Unit>
 }
