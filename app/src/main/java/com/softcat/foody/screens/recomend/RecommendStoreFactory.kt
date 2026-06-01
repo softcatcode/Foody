@@ -111,15 +111,17 @@ class RecommendStoreFactory
             Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
             when (intent) {
                 is RecommendStore.Intent.AddIngredient -> {
-                    if (intent.elem !in selectedIngredients)
+                    if (intent.elem !in selectedIngredients) {
                         selectedIngredients.add(intent.elem)
-                    dispatch(Msg.AddIngredient(intent.elem))
+                        dispatch(Msg.AddIngredient(intent.elem))
+                    }
                 }
 
                 is RecommendStore.Intent.AddTag -> {
-                    if (intent.elem !in selectedTags)
+                    if (intent.elem !in selectedTags) {
                         selectedTags.add(intent.elem)
-                    dispatch(Msg.AddTag(intent.elem))
+                        dispatch(Msg.AddTag(intent.elem))
+                    }
                 }
 
                 is RecommendStore.Intent.RemoveIngredient -> {

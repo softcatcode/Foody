@@ -129,8 +129,7 @@ fun AddIngredientsDialog(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         items(
-                            items = state.searchResult,
-                            key = { it.name }
+                            items = state.searchResult
                         ) { tag ->
                             SimpleIngredientCard(
                                 modifier = Modifier,
