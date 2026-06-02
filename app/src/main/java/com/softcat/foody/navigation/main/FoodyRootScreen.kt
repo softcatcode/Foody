@@ -34,7 +34,7 @@ fun FoodyRootScreen(component: FoodyRootComponent) {
         ) {
             ChildPages(
                 pages = pages,
-                onPageSelected = {}
+                onPageSelected = component::selectPage
             ) { _, page ->
                 when (page) {
                     is FoodyRootComponent.Child.FavouritesNavComponent -> FavouritesRootContent(page.component)
