@@ -26,9 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.softcat.foody.R
 import com.softcat.foody.common.ScoreCard
 import com.softcat.foody.common.ScoresTopBar
 import com.softcat.foody.screens.scores.ScoresStore.State.ContentStatus.Content
@@ -110,7 +112,7 @@ private fun IsCookedSwitcher(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "All",
+                    text = stringResource(R.string.all_scores),
                     style = MaterialTheme.typography.labelLarge,
                     textAlign = TextAlign.Center,
                     color = firstTextColor
@@ -133,7 +135,7 @@ private fun IsCookedSwitcher(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Cooked",
+                    text = stringResource(R.string.cooked),
                     style = MaterialTheme.typography.labelLarge,
                     textAlign = TextAlign.Center,
                     color = secondTextColor
