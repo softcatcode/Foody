@@ -2,7 +2,7 @@ package com.example.recommender.mlModels
 
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.linalg.dot
-import org.jetbrains.kotlinx.multik.api.linalg.solve
+import org.jetbrains.kotlinx.multik.api.linalg.inv
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.set
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
@@ -25,8 +25,9 @@ class RidgeModel(private val alpha: Float = 1.0f): Regression {
         val regMatrix = mk.identity<Float>(m + 1) * alpha
         regMatrix[0, 0] = 0f
 
+        val invXtX = mk.linalg.inv(xtx + regMatrix)
         val xty = xt dot targets.reshape(targets.size, 1)
-        this.weights = mk.linalg.solve(xtx + regMatrix, xty)
+        weights = invXtX dot xty
     }
 
     override fun predict(x: D2Array<Float>): D2Array<Float> {
