@@ -66,7 +66,7 @@ class RecommendationManagerImpl @Inject constructor(
         val pairs = scores
             .zip(recipeIds)
             .filter { it.first >= 4f }
-            .sortedWith(compareBy { it.first })
+            .sortedByDescending { it.first }
 
         val recipeModels = database.getRecipes(recipeIds)
         val recipeMap = mapper.toEntities(recipeModels)
