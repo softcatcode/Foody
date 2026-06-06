@@ -1,5 +1,7 @@
 package com.softcat.foody.screens.recomend
 
+import android.app.Application
+import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -7,6 +9,8 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
+import com.softcat.domain.exceptions.NoScoresException
+import com.softcat.foody.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -19,6 +23,7 @@ import timber.log.Timber
 
 class RecommendComponentImpl @AssistedInject constructor(
     private val storeFactory: RecommendStoreFactory,
+    private val application: Application,
     @Assisted("context") componentContext: ComponentContext,
     @Assisted("open_recipe") private val openRecipeDetailsCallback: (Recipe) -> Unit
 ): RecommendComponent, ComponentContext by componentContext {
@@ -38,6 +43,14 @@ class RecommendComponentImpl @AssistedInject constructor(
     private fun labelCollector(label: RecommendStore.Label) {
         when (label) {
             is RecommendStore.Label.OpenRecipeDetails -> openRecipeDetailsCallback(label.recipe)
+            is RecommendStore.Label.Error -> {
+                val msg = if (label.error is NoScoresException) {
+                    application.getString(R.string.need_two_scores_error)
+                } else {
+                    "Error: " + label.error.message.orEmpty()
+                }
+                Toast.makeText(application, msg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

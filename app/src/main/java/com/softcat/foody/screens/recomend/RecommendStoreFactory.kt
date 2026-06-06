@@ -64,10 +64,10 @@ class RecommendStoreFactory
             data class ChangeSearchIngredientQuery(val newValue: String) : Msg
             data class ChangeSearchTagQuery(val newValue: String) : Msg
             data object RecommendationLoading : Msg
-            data class RecommendationReady(val recipes: List<RecipeRecommendationModel>) : Msg
             data object ShowAddRequiredIngredientDialog : Msg
             data object ShowAddRequiredTagDialog : Msg
             data object HideDialog : Msg
+            data object Reset: Msg
 
             data class SearchIngredientResult(
                 val query: String,
@@ -78,6 +78,8 @@ class RecommendStoreFactory
                 val query: String,
                 val tags: List<RecipeTag>
             ): Msg
+
+            data class RecommendationReady(val recipes: List<RecipeRecommendationModel>) : Msg
         }
 
     private inner class RecommendationsExecutor(
@@ -189,23 +191,30 @@ class RecommendStoreFactory
             dispatch(Msg.RecommendationLoading)
             scope.launch(Dispatchers.Default) {
                 val scores = scoreUseCase.observe(userId).first()
-                recommendation = recipeUseCase.recommend(
+                val result = recipeUseCase.recommend(
                     scores = scores,
                     ingredients = selectedIngredients,
                     maxAbsentIngredients = state().maxAbsentIngredients,
                     tags = selectedTags
                 )
-                val recipeModels = recommendation.map { recipe ->
-                    RecipeRecommendationModel(
-                        id = recipe.id,
-                        name = recipe.name,
-                        description = recipe.description,
-                        isFavourite = favouriteRecipesIds?.let { recipe.id in it } ?: false,
-                        isFavouriteVisible = favouriteRecipesIds != null,
-                    )
-                }
-                withContext(Dispatchers.Main) {
-                    dispatch(Msg.RecommendationReady(recipeModels))
+                result.onSuccess { recommendation ->
+                    val recipeModels = recommendation.map { recipe ->
+                        RecipeRecommendationModel(
+                            id = recipe.id,
+                            name = recipe.name,
+                            description = recipe.description,
+                            isFavourite = favouriteRecipesIds?.let { recipe.id in it } ?: false,
+                            isFavouriteVisible = favouriteRecipesIds != null,
+                        )
+                    }
+                    withContext(Dispatchers.Main) {
+                        dispatch(Msg.RecommendationReady(recipeModels))
+                    }
+                }.onFailure {
+                    withContext(Dispatchers.Main) {
+                        publish(RecommendStore.Label.Error(it))
+                        dispatch(Msg.Reset)
+                    }
                 }
             }
         }
@@ -246,6 +255,10 @@ class RecommendStoreFactory
             override fun RecommendStore.State.reduce(msg: Msg): RecommendStore.State {
                 Timber.i("${this::class.simpleName}: Message is obtained: $msg")
                 return when (msg) {
+                    Msg.Reset -> {
+                        copy(resultStatus = RecommendStore.State.RecommendationStatus.Initial)
+                    }
+
                     is Msg.AddIngredient -> {
                         copy(ingredients = ingredients.toMutableList().apply { add(msg.elem.name) })
                     }

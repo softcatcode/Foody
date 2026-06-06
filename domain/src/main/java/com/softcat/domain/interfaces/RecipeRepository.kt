@@ -16,7 +16,7 @@ interface RecipeRepository {
         ingredients: List<Ingredient>,
         maxAbsentIngredients: Int,
         tags: List<RecipeTag>
-    ): List<Recipe>
+    ): Result<List<Recipe>>
 
     suspend fun get(recipeIds: List<Int>): List<Recipe>
 

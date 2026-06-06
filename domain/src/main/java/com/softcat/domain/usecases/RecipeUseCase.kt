@@ -4,6 +4,7 @@ import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.domain.entities.Score
+import com.softcat.domain.exceptions.NoScoresException
 import com.softcat.domain.interfaces.RecipeRepository
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
@@ -25,8 +26,10 @@ class RecipeUseCase @Inject constructor(
         ingredients: List<Ingredient>,
         maxAbsentIngredients: Int,
         tags: List<RecipeTag>
-    ): List<Recipe> {
+    ): Result<List<Recipe>> {
         Timber.i("${this::class.simpleName} recommend(List(${scores.size}), $ingredients, $tags) invoked")
+        if (scores.size < 2)
+            return Result.failure(NoScoresException())
         return repository.recommend(scores, ingredients, maxAbsentIngredients, tags)
     }
 

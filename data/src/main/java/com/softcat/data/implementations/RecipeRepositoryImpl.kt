@@ -34,8 +34,18 @@ class RecipeRepositoryImpl @Inject constructor(
         ingredients: List<Ingredient>,
         maxAbsentIngredients: Int,
         tags: List<RecipeTag>
-    ): List<Recipe> {
-        return recommender.getRecommendation(scores, ingredients, maxAbsentIngredients, tags)
+    ): Result<List<Recipe>> {
+        return try {
+            val recipes = recommender.getRecommendation(
+                scores,
+                ingredients,
+                maxAbsentIngredients,
+                tags
+            )
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun get(recipeIds: List<Int>): List<Recipe> {

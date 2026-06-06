@@ -78,5 +78,7 @@ interface RecommendStore : Store<RecommendStore.Intent, RecommendStore.State, Re
 
     sealed interface Label {
         data class OpenRecipeDetails(val recipe: Recipe): Label
+
+        data class Error(val error: Throwable): Label
     }
 }
