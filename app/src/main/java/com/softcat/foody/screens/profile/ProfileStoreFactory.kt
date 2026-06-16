@@ -128,8 +128,8 @@ class ProfileStoreFactory @Inject constructor(
         }
 
         private fun saveAvatar(uri: Uri?, userId: String) {
-            dispatch(Msg.AvatarLoading)
             uri ?: return
+            dispatch(Msg.AvatarLoading)
             scope.launch(Dispatchers.IO) {
                 avatarUseCase.save(userId, uri).onSuccess { url ->
                     withContext(Dispatchers.Main) {
