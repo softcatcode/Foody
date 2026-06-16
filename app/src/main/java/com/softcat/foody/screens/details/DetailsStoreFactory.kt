@@ -179,7 +179,7 @@ class DetailsStoreFactory @Inject constructor(
             Timber.i("${this::class.simpleName}: Message is obtained: $msg")
 
             return when (msg) {
-                is Msg.SetIsFavourite -> copy(isFavourite = msg.newValue)
+                is Msg.SetIsFavourite -> copy(isFavourite = msg.newValue, isFavouriteVisible = true)
                 is Msg.SetIsCooked -> copy(recipe = recipe.copy(isCooked = msg.newValue))
                 is Msg.SetScore -> copy(isScoreVisible = true, score = msg.newValue)
                 Msg.NextStep -> copy(stepNumber = stepNumber + 1)

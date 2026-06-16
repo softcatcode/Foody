@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.arkivanov.decompose.extensions.compose.pages.ChildPages
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.softcat.foody.common.NavigationBar
 import com.softcat.foody.navigation.favourites.FavouritesRootContent
@@ -15,15 +17,14 @@ import com.softcat.foody.navigation.search.SearchRootContent
 
 @Composable
 fun FoodyRootScreen(component: FoodyRootComponent) {
-    val pages = component.pages.subscribeAsState()
-    val index = pages.value.selectedIndex
-    val instance = pages.value.items[index].instance ?: return
+    val pages by component.pages.subscribeAsState()
+    val index = pages.selectedIndex
 
     Scaffold(
         bottomBar = {
             NavigationBar(
                 selectedIndex = index,
-                onIndexSelected = { component.selectPage(it) }
+                onIndexSelected = component::selectPage
             )
         }
     ) { paddingValues ->
@@ -31,11 +32,16 @@ fun FoodyRootScreen(component: FoodyRootComponent) {
             modifier = Modifier.padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            when (instance) {
-                is FoodyRootComponent.Child.FavouritesNavComponent -> FavouritesRootContent(instance.component)
-                is FoodyRootComponent.Child.ProfileNavComponent -> ProfileRootContent(instance.component)
-                is FoodyRootComponent.Child.RecommendNavComponent -> RecommendRootContent(instance.component)
-                is FoodyRootComponent.Child.SearchNavComponent -> SearchRootContent(instance.component)
+            ChildPages(
+                pages = pages,
+                onPageSelected = component::selectPage
+            ) { _, page ->
+                when (page) {
+                    is FoodyRootComponent.Child.FavouritesNavComponent -> FavouritesRootContent(page.component)
+                    is FoodyRootComponent.Child.ProfileNavComponent -> ProfileRootContent(page.component)
+                    is FoodyRootComponent.Child.RecommendNavComponent -> RecommendRootContent(page.component)
+                    is FoodyRootComponent.Child.SearchNavComponent -> SearchRootContent(page.component)
+                }
             }
         }
     }

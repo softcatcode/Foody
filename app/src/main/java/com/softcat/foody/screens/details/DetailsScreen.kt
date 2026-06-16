@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,7 +68,7 @@ private fun RecipeStep(
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             IconButton(
@@ -96,6 +97,7 @@ private fun RecipeStep(
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 48.dp)
                     .wrapContentSize()
+                    .align(Alignment.TopCenter)
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -177,84 +179,65 @@ fun RecipeExtraInfoCard(
             containerColor = MaterialTheme.colorScheme.background
         )
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        Column(
+            modifier = Modifier.padding(8.dp)
         ) {
-            item {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.nutrition_data_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    textAlign = TextAlign.Center
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.clock_filled,
-                    labelResId = R.string.cooking_time,
-                    unitsResId = R.string.min,
-                    value = cookingTime
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.calories_icon,
-                    labelResId = R.string.calories,
-                    unitsResId = R.string.calories_units,
-                    value = data.calories.toInt()
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.protein_icon,
-                    labelResId = R.string.protein,
-                    unitsResId = R.string.gram,
-                    value = data.protein.toInt()
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.carbohydrates_icon,
-                    labelResId = R.string.carbohydrates,
-                    unitsResId = R.string.gram,
-                    value = data.carbohydrates.toInt()
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.sugar_icon,
-                    labelResId = R.string.sugar,
-                    unitsResId = R.string.gram,
-                    value = data.sugar.toInt()
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.fat_icon,
-                    labelResId = R.string.fat,
-                    unitsResId = R.string.gram,
-                    value = data.fat.toInt()
-                )
-            }
-            item {
-                ExtraInfoElement(
-                    modifier = Modifier.fillMaxWidth(),
-                    iconResId = R.drawable.fat_icon,
-                    labelResId = R.string.saturated_fat,
-                    unitsResId = R.string.gram,
-                    value = data.saturatedFat.toInt()
-                )
-            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.nutrition_data_title),
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(4.dp))
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.clock_filled,
+                labelResId = R.string.cooking_time,
+                unitsResId = R.string.min,
+                value = cookingTime
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.calories_icon,
+                labelResId = R.string.calories,
+                unitsResId = R.string.calories_units,
+                value = data.calories.toInt()
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.protein_icon,
+                labelResId = R.string.protein,
+                unitsResId = R.string.gram,
+                value = data.protein.toInt()
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.carbohydrates_icon,
+                labelResId = R.string.carbohydrates,
+                unitsResId = R.string.gram,
+                value = data.carbohydrates.toInt()
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.sugar_icon,
+                labelResId = R.string.sugar,
+                unitsResId = R.string.gram,
+                value = data.sugar.toInt()
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.fat_icon,
+                labelResId = R.string.fat,
+                unitsResId = R.string.gram,
+                value = data.fat.toInt()
+            )
+            ExtraInfoElement(
+                modifier = Modifier.fillMaxWidth(),
+                iconResId = R.drawable.fat_icon,
+                labelResId = R.string.saturated_fat,
+                unitsResId = R.string.gram,
+                value = data.saturatedFat.toInt()
+            )
         }
     }
 }
@@ -424,6 +407,12 @@ private fun DetailsContent(
                 style = MaterialTheme.typography.headlineSmall,
                 color = Black
             )
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp),
+                text = state.recipe.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Gray
+            )
             ElementsScrollableFlow(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -436,7 +425,7 @@ private fun DetailsContent(
             )
             Spacer(Modifier.height(16.dp))
             RecipeStep(
-                modifier = Modifier.heightIn(max = screenHeight * 0.25f),
+                modifier = Modifier.heightIn(min = screenHeight * 0.1f, max = screenHeight * 0.25f),
                 stepNumber = state.stepNumber,
                 stepCount = state.recipe.steps.size,
                 step = state.recipe.steps[state.stepNumber - 1],
@@ -445,7 +434,7 @@ private fun DetailsContent(
             )
             Spacer(Modifier.height(16.dp))
             RecipeExtraInfoCard(
-                modifier = Modifier.heightIn(max = screenHeight * 0.25f),
+                modifier = Modifier.wrapContentHeight(),
                 data = state.recipe.nutrition,
                 cookingTime = state.recipe.minutes
             )

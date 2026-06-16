@@ -28,6 +28,7 @@
     <string name="favourites_without_content_text">You can find recipes with search and recommendation functionality</string>
     <string name="find_recipe_navigation_title">Find recipe</string>
     <string name="recommend_recipe_navigation_title">Get recommendation</string>
+    <string name="need_two_scores_error">Make at least 2 scores</string>
 
     <string name="profile_title">Profile</string>
     <string name="scores">Scores</string>
@@ -88,4 +89,8 @@
     <string name="medium_db_description">A medium database that is balanced with resource efficiency and size of recipe sample.</string>
     <string name="big_db_description">A big database that takes more resources and a few minutes for initialization. Use if you are not restrained by memory and want to access all the recipes.</string>
     <string name="continue_title">Continue</string>
+    <string name="initialization_error">Initialization error</string>
+
+    <string name="all_scores">All</string>
+    <string name="cooked">Cooked</string>
 </resources>

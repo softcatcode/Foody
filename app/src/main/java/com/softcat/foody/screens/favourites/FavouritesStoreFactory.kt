@@ -41,9 +41,9 @@ class FavouritesStoreFactory @Inject constructor(
                 contentStatus = FavouritesStore.State.ContentStatus.Loading,
                 filtersStatus = FavouritesStore.State.FiltersSheetState(
                     filterParameters = FilterParams(),
-                    visibleTags = emptyList(),
-                    visibleIngredients = emptyList(),
-                    expanded = false
+                    expanded = false,
+                    suggestedTags = emptyList(),
+                    suggestedIngredients = emptyList(),
                 ),
             ),
             bootstrapper = FavouriteBootstrapper(),
@@ -86,6 +86,9 @@ class FavouritesStoreFactory @Inject constructor(
         private var favouritesCollectingJob: Job? = null
         private var userCollectingJob: Job? = null
 
+        private var visibleIngredients: List<String> = emptyList()
+        private var visibleTags: List<String> = emptyList()
+
         init {
             lifecycle.doOnStart {
                 userCollectingJob = scope.launch {
@@ -106,8 +109,14 @@ class FavouritesStoreFactory @Inject constructor(
         override fun executeAction(action: Action) {
             Timber.i("${this::class.simpleName}: Action is obtained: $action")
             when (action) {
-                is Action.IngredientsLoaded -> dispatch(Msg.IngredientsLoaded(action.ingredients))
-                is Action.TagsLoaded -> dispatch(Msg.TagsLoaded(action.tags))
+                is Action.IngredientsLoaded -> {
+                    visibleIngredients = action.ingredients
+                    dispatch(Msg.IngredientsSuggestionChanged(action.ingredients))
+                }
+                is Action.TagsLoaded -> {
+                    visibleTags = action.tags
+                    dispatch(Msg.TagsSuggestionChanged(action.tags))
+                }
             }
         }
 
@@ -148,7 +157,7 @@ class FavouritesStoreFactory @Inject constructor(
 
                 is FavouritesStore.Intent.IngredientClicked -> ingredientClicked(intent.name)
 
-                FavouritesStore.Intent.ResetFilters -> dispatch(Msg.ResetFilters)
+                FavouritesStore.Intent.ResetFilters -> updateFilterParams(FilterParams())
 
                 is FavouritesStore.Intent.OpenRecipeDetails -> {
                     val recipe = favourites?.find { it.id == intent.recipeId }
@@ -190,30 +199,35 @@ class FavouritesStoreFactory @Inject constructor(
         }
 
         private fun tagClicked(name: String) {
-            val visibleTags = state().filtersStatus.visibleTags
-            val reqTags = state().filtersStatus.filterParameters.reqTags.toMutableList()
+            val suggested = state().filtersStatus.suggestedTags.toMutableList()
+            val selected = state().filtersStatus.filterParameters.tags.toMutableList()
             val tag = visibleTags.find { it == name } ?: return
-            if (tag in reqTags)
-                reqTags.remove(tag)
-            else
-                reqTags.add(tag)
-            val params = state().filtersStatus.filterParameters.copy(
-                reqTags = reqTags
-            )
+            if (tag in selected) {
+                selected.remove(tag)
+                suggested.add(0, tag)
+            } else {
+                selected.add(tag)
+                suggested.remove(tag)
+            }
+            val params = state().filtersStatus.filterParameters.copy(tags = selected)
+            dispatch(Msg.TagsSuggestionChanged(suggested))
             updateFilterParams(params)
         }
 
         private fun ingredientClicked(name: String) {
-            val visibleIngredients = state().filtersStatus.visibleIngredients
-            val reqIngredients = state().filtersStatus.filterParameters.reqIngredients.toMutableList()
+            val suggested = state().filtersStatus.suggestedIngredients.toMutableList()
+            val selected = state().filtersStatus.filterParameters.ingredients.toMutableList()
             val ingredient = visibleIngredients.find { it == name } ?: return
-            if (ingredient in reqIngredients)
-                reqIngredients.remove(ingredient)
-            else
-                reqIngredients.add(ingredient)
-            val params = state().filtersStatus.filterParameters.copy(
-                reqIngredients = reqIngredients
-            )
+            if (ingredient in selected) {
+                selected.remove(ingredient)
+                suggested.add(0, ingredient)
+            }
+            else {
+                selected.add(ingredient)
+                suggested.remove(ingredient)
+            }
+            val params = state().filtersStatus.filterParameters.copy(ingredients = selected)
+            dispatch(Msg.IngredientsSuggestionChanged(suggested))
             updateFilterParams(params)
         }
 
@@ -251,11 +265,17 @@ class FavouritesStoreFactory @Inject constructor(
                 is Msg.UpdateFilterParams ->
                     copy(filtersStatus = filtersStatus.copy(filterParameters = msg.params))
 
-                is Msg.IngredientsLoaded ->
-                    copy(filtersStatus = filtersStatus.copy(visibleIngredients = msg.ingredients))
+                is Msg.IngredientsSuggestionChanged -> {
+                    copy(
+                        filtersStatus = filtersStatus.copy(suggestedIngredients = msg.ingredients)
+                    )
+                }
 
-                is Msg.TagsLoaded ->
-                    copy(filtersStatus = filtersStatus.copy(visibleTags = msg.tags))
+                is Msg.TagsSuggestionChanged -> {
+                    copy(
+                        filtersStatus = filtersStatus.copy(suggestedTags = msg.tags)
+                    )
+                }
 
                 Msg.ExpandFiltersSheet -> copy(filtersStatus = filtersStatus.copy(expanded = true))
 
@@ -264,8 +284,6 @@ class FavouritesStoreFactory @Inject constructor(
                 Msg.UserIsAbsent -> copy(contentStatus = FavouritesStore.State.ContentStatus.UserIsAbsent)
 
                 Msg.FavouritesIsEmpty -> copy(contentStatus = FavouritesStore.State.ContentStatus.Empty)
-
-                Msg.ResetFilters -> copy(filtersStatus = filtersStatus.copy(filterParameters = FilterParams()))
 
                 is Msg.FavouritesLoaded ->
                     copy(contentStatus = FavouritesStore.State.ContentStatus.RecipeList(msg.recipes))
@@ -278,15 +296,13 @@ class FavouritesStoreFactory @Inject constructor(
 
         data class FavouritesLoaded(val recipes: List<RecipeModel>): Msg
 
-        data class TagsLoaded(val tags: List<String>): Msg
+        data class TagsSuggestionChanged(val tags: List<String>): Msg
 
-        data class IngredientsLoaded(val ingredients: List<String>): Msg
+        data class IngredientsSuggestionChanged(val ingredients: List<String>): Msg
 
         data object ExpandFiltersSheet: Msg
 
         data object HideFiltersSheet: Msg
-
-        data object ResetFilters: Msg
 
         data object UserIsAbsent: Msg
 

@@ -15,5 +15,6 @@ object DatabaseRules {
     const val TAGS_TABLE_NAME = "tags"
     const val AVG_SCORES_TABLE_NAME = "avg_scores"
     const val RECIPE_VECTORS_TABLE_NAME = "recipe_vectors"
+    const val SCORES_TABLE_NAME = "scores"
     const val DATABASE_NAME = "recipes_database"
 }

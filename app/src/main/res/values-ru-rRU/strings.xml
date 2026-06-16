@@ -28,6 +28,7 @@
     <string name="favourites_without_content_text">Рецепты можно найти в разделе рекомендаций или поиска</string>
     <string name="find_recipe_navigation_title">Найти рецепт</string>
     <string name="recommend_recipe_navigation_title">Получить ркомендацию</string>
+    <string name="need_two_scores_error">Нужно минимум 2 оценки</string>
 
     <string name="profile_title">Профиль</string>
     <string name="scores">Оценки</string>
@@ -79,7 +80,7 @@
     <string name="is_cooked">Приготовлено</string>
     <string name="score">Оценка</string>
     <string name="recipe_details_title">Рецепт</string>
-    <string name="authorize_to_access_scores">Authorize to score this recipe</string>
+    <string name="authorize_to_access_scores">Авторизуйтесь для оценки рецепта</string>
 
     <string name="initialization_title">Подготовка</string>
     <string name="initialization_instruction">Выбор размера базы данных с рецептами</string>
@@ -88,4 +89,8 @@
     <string name="medium_db_description">Компромисс между используемой памятью и количеством рецептов. Инициализация не займёт больше минуты.</string>
     <string name="big_db_description">Большая база рецептов, которая требует несколько минут на подготовку. Используй, если не ограничен по памяти и хочешь получить доступ ко всем рецептам.</string>
     <string name="continue_title">Продолжить</string>
+    <string name="initialization_error">Ошибка инициализации</string>
+
+    <string name="all_scores">Все</string>
+    <string name="cooked">Приготовлено</string>
 </resources>

@@ -4,6 +4,7 @@ import android.net.Uri
 import com.softcat.database.models.AvatarDbModel
 import com.softcat.database.models.IngredientDbModel
 import com.softcat.database.models.RecipeDbModel
+import com.softcat.database.models.RecipeVectorDbModel
 import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.models.TagDbModel
 import com.softcat.database.models.UserDbModel
@@ -38,6 +39,8 @@ interface DatabaseFacade {
 
     suspend fun searchRecipe(query: String, limit: Int): List<RecipeDbModel>
 
+    suspend fun getRecipeSample(limit: Int): List<RecipeDbModel>
+
     suspend fun searchIngredient(query: String, limit: Int): List<IngredientDbModel>
 
     suspend fun searchTag(query: String, limit: Int): List<TagDbModel>
@@ -52,6 +55,8 @@ interface DatabaseFacade {
 
     suspend fun getRecipes(recipeIds: List<Int>): List<RecipeDbModel>
 
+    suspend fun getAllRecipes(): List<RecipeDbModel>
+
     suspend fun setRecipeIsCooked(recipeId: Int, value: Boolean): Result<Unit>
 
     suspend fun isRecipeCooked(recipeId: Int): Boolean
@@ -59,4 +64,8 @@ interface DatabaseFacade {
     suspend fun getAvgScores(ids: List<Int>): Map<Int, Float>
 
     suspend fun exit()
+
+    suspend fun getRecipeVectors(): List<RecipeVectorDbModel>
+
+    suspend fun updateScoreCache(userId: String?): Result<Unit>
 }

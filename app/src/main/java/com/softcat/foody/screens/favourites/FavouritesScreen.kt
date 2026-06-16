@@ -216,8 +216,8 @@ fun FavouritesContent(
             modifier = Modifier.fillMaxWidth(),
             onDismiss = closeFilterSheet,
             params = state.filtersStatus.filterParameters,
-            tags = state.filtersStatus.visibleTags,
-            ingredients = state.filtersStatus.visibleIngredients,
+            suggestedTags = state.filtersStatus.suggestedTags,
+            suggestedIngredients = state.filtersStatus.suggestedIngredients,
             isExpanded = state.filtersStatus.expanded,
             onScoreClicked = onScoreClicked,
             onCaloriesChange = onCaloriesChange,
@@ -258,9 +258,12 @@ fun FavouritesScreen(component: FavouritesComponent) {
 private fun Empty_Preview() {
     val state = FavouritesStore.State(
         filtersStatus = FavouritesStore.State.FiltersSheetState(
-            filterParameters = FilterParams(),
-            visibleTags = listOf("ice", "breakfast", "15-minutes-or-less", "easy"),
-            visibleIngredients = listOf("apple", "butter", "milk", "honey"),
+            filterParameters = FilterParams(
+                tags = listOf("ice", "15-minutes-or-less"),
+                ingredients = listOf("milk")
+            ),
+            suggestedTags = listOf("breakfast", "easy"),
+            suggestedIngredients = listOf("apple", "butter", "honey"),
             expanded = false
         ),
         contentStatus = FavouritesStore.State.ContentStatus.Empty,
@@ -307,8 +310,8 @@ private fun Content_Preview() {
     val state = FavouritesStore.State(
         filtersStatus = FavouritesStore.State.FiltersSheetState(
             filterParameters = FilterParams(),
-            visibleTags = listOf("ice", "breakfast", "15-minutes-or-less", "easy"),
-            visibleIngredients = listOf("apple", "butter", "milk", "honey"),
+            suggestedTags = listOf("breakfast", "easy"),
+            suggestedIngredients = listOf("apple", "butter", "honey"),
             expanded = false
         ),
         contentStatus = FavouritesStore.State.ContentStatus.RecipeList(

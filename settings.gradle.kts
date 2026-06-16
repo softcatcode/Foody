@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven("https://maven.arkivanov.com/releases/")
+        //maven("https://maven.arkivanov.com/releases/")
     }
 }
 
@@ -25,3 +25,4 @@ include(":app")
 include(":domain")
 include(":data")
 include(":database")
+include(":recommender")

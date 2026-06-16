@@ -1,5 +1,6 @@
 [versions]
-agp = "9.0.1"
+agp = "9.2.1"
+coilGif = "2.7.0"
 coreKtx = "1.17.0"
 dagger = "2.59.2"
 junit = "4.13.2"
@@ -12,12 +13,14 @@ composeBom = "2026.02.00"
 appcompat = "1.7.1"
 material = "1.13.0"
 ksp = "2.3.4"
+multikCoreVersion = "0.3.0"
+multikKotlin = "0.3.0"
 timber = "5.0.1"
 datastore = "1.2.0"
 googleGmsGoogleServices = "4.4.4"
 firebaseDatabase = "22.0.1"
 room = "2.8.4"
-decompose = "3.4.0"
+decompose = "3.5.0"
 mviKotlin = "4.3.0"
 serialization = "2.3.10"
 serializationCore = "1.10.0"
@@ -29,6 +32,7 @@ awsAndroidSdkS3 = "2.73.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilGif" }
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -46,6 +50,8 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+multik-core-v030 = { module = "org.jetbrains.kotlinx:multik-core", version.ref = "multikCoreVersion" }
+multik-kotlin = { module = "org.jetbrains.kotlinx:multik-kotlin", version.ref = "multikKotlin" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }

@@ -8,6 +8,7 @@ import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.remote.interfaces.AvatarsManager
 import com.softcat.database.remote.interfaces.FavouritesManager
 import com.softcat.database.local.dao.RecipeDao
+import com.softcat.database.local.dao.RecipeVectorDao
 import com.softcat.database.local.dao.TagDao
 import com.softcat.database.models.UserDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
@@ -24,6 +25,7 @@ class Database @Inject constructor(
     private val ingredientDao: IngredientDao,
     private val tagDao: TagDao,
     private val avgScoreDao: AvgScoreDao,
+    private val recipeVectorDao: RecipeVectorDao,
     private val initializeManager: InitializeManager
 ): DatabaseFacade {
 
@@ -67,12 +69,30 @@ class Database @Inject constructor(
         name: String,
         email: String,
         password: String
-    ) = usersManager.createUser(name, email, password)
+    ): Result<UserDbModel> {
+        val result = usersManager.createUser(name, email, password)
+        if (result.isSuccess) {
+            val userId = result.getOrNull()?.id
+            userId?.let {
+                scoreManager.updateScoreCache(it)
+            }
+        }
+        return result
+    }
 
     override suspend fun verifyUser(
         email: String,
         password: String
-    ) = usersManager.enter(email, password)
+    ): Result<UserDbModel> {
+        val result = usersManager.enter(email, password)
+        if (result.isSuccess) {
+            val userId = result.getOrNull()?.id
+            userId?.let {
+                scoreManager.updateScoreCache(it)
+            }
+        }
+        return result
+    }
 
     override suspend fun modifyUser(user: UserDbModel) = usersManager.modify(user)
 
@@ -94,6 +114,8 @@ class Database @Inject constructor(
     }
 
     override suspend fun searchRecipe(query: String, limit: Int) = recipeDao.search(query, limit)
+
+    override suspend fun getRecipeSample(limit: Int) = recipeDao.getSample(limit)
 
     override suspend fun searchIngredient(query: String, limit: Int) = ingredientDao.search(query, limit)
 
@@ -120,6 +142,8 @@ class Database @Inject constructor(
 
     override suspend fun getRecipes(recipeIds: List<Int>) = recipeIds.mapNotNull { recipeDao.get(it) }
 
+    override suspend fun getAllRecipes() = recipeDao.getAll()
+
     override suspend fun setRecipeIsCooked(recipeId: Int, value: Boolean): Result<Unit> {
         return try {
             Result.success(recipeDao.setIsCooked(recipeId, value))
@@ -138,5 +162,12 @@ class Database @Inject constructor(
         }
     }
 
-    override suspend fun exit() = usersManager.exit()
+    override suspend fun exit() {
+        usersManager.exit()
+        scoreManager.updateScoreCache(null)
+    }
+
+    override suspend fun getRecipeVectors() = recipeVectorDao.getAll()
+
+    override suspend fun updateScoreCache(userId: String?) = scoreManager.updateScoreCache(userId)
 }

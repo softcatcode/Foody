@@ -1,6 +1,7 @@
 package com.softcat.data.implementations
 
-import com.softcat.data.mapper.RecipeMapper
+import com.example.recommender.implementations.RecipeMapper
+import com.example.recommender.interfaces.RecommendationManager
 import com.softcat.database.facade.DatabaseFacade
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
@@ -13,25 +14,38 @@ import javax.inject.Inject
 
 class RecipeRepositoryImpl @Inject constructor(
     private val database: DatabaseFacade,
-    private val recipeMapper: RecipeMapper
+    private val recipeMapper: RecipeMapper,
+    private val recommender: RecommendationManager
 ): RecipeRepository {
 
     private val isCookedFlow = MutableStateFlow(false)
     private var selectedRecipe: Int? = null
 
-    override suspend fun search(
-        userId: String?,
-        query: String,
-    ): List<Recipe> {
-        return recipeMapper.toEntities(database.searchRecipe(query, limit = 150))
+    override suspend fun search(query: String): List<Recipe> {
+        return recipeMapper.toEntities(database.searchRecipe(query, RECIPE_LIMIT))
+    }
+
+    override suspend fun getRecipeSample(): List<Recipe> {
+        return recipeMapper.toEntities(database.getRecipeSample(RECIPE_LIMIT))
     }
 
     override suspend fun recommend(
         scores: List<Score>,
         ingredients: List<Ingredient>,
+        maxAbsentIngredients: Int,
         tags: List<RecipeTag>
-    ): List<Recipe> {
-        return emptyList()
+    ): Result<List<Recipe>> {
+        return try {
+            val recipes = recommender.getRecommendation(
+                scores,
+                ingredients,
+                maxAbsentIngredients,
+                tags
+            )
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun get(recipeIds: List<Int>): List<Recipe> {
@@ -51,5 +65,9 @@ class RecipeRepositoryImpl @Inject constructor(
         selectedRecipe = recipeId
         isCookedFlow.value = database.isRecipeCooked(recipeId)
         return isCookedFlow
+    }
+
+    companion object {
+        private const val RECIPE_LIMIT = 300
     }
 }

@@ -47,8 +47,8 @@ class SearchStoreFactory @Inject constructor(
                     searchQuery = "",
                     filtersState = SearchStore.State.FiltersSheetState(
                         filterParameters = FilterParams(),
-                        visibleTags = emptyList(),
-                        visibleIngredients = emptyList(),
+                        suggestedTags = emptyList(),
+                        suggestedIngredients = emptyList(),
                         expanded = false,
                     ),
                     searchStatus = SearchStore.State.SearchStatus.Initial
@@ -65,23 +65,26 @@ class SearchStoreFactory @Inject constructor(
 
         data class ChangeSearchContent(val recipes: List<RecipeModel>): Msg
 
-        data class IngredientsLoaded(val ingredients: List<String>): Msg
+        data class IngredientsSuggestionChanged(val ingredients: List<String>): Msg
 
-        data class TagsLoaded(val tags: List<String>): Msg
+        data class TagsSuggestionChanged(val tags: List<String>): Msg
 
         data object ExpandFiltersSheet: Msg
 
         data object HideFiltersSheet: Msg
 
         data object LoadingStarted: Msg
-
-        data object ResetFilters: Msg
     }
 
     sealed interface Action {
         data class IngredientsLoaded(val ingredients: List<String>): Action
 
         data class TagsLoaded(val tags: List<String>): Action
+
+        data class InitialRecipeSampleLoaded(
+            val recipes: List<Recipe>,
+            val scores: Map<Int, Float>
+        ): Action
     }
 
     private inner class SearchBootstrapper: CoroutineBootstrapper<Action>() {
@@ -94,6 +97,11 @@ class SearchStoreFactory @Inject constructor(
                 val tags = tagUseCase.getTags(1000).map { it.name }
                 withContext(Dispatchers.Main) {
                     dispatch(Action.TagsLoaded(tags))
+                }
+                val initialSearchResult = recipeUseCase.search("")
+                val avgScores = scoreUseCase.getAvgScores(initialSearchResult.map { it.id })
+                withContext(Dispatchers.Main) {
+                    dispatch(Action.InitialRecipeSampleLoaded(initialSearchResult, avgScores))
                 }
             }
         }
@@ -109,6 +117,9 @@ class SearchStoreFactory @Inject constructor(
 
         private var userCollectingJob: Job? = null
         private var favouritesCollectingJob: Job? = null
+
+        private var visibleIngredients: List<String> = emptyList()
+        private var visibleTags: List<String> = emptyList()
 
         init {
             lifecycle.doOnStart {
@@ -158,7 +169,7 @@ class SearchStoreFactory @Inject constructor(
                 is SearchStore.Intent.IngredientClicked -> ingredientClicked(intent.name)
                 SearchStore.Intent.ExpandFiltersSheet -> dispatch(Msg.ExpandFiltersSheet)
                 SearchStore.Intent.HideFiltersSheet -> dispatch(Msg.HideFiltersSheet)
-                SearchStore.Intent.ResetFilters -> dispatch(Msg.ResetFilters)
+                SearchStore.Intent.ResetFilters -> updateFilterParams(FilterParams())
 
                 is SearchStore.Intent.ChangeScore -> {
                     val params = state().filtersState.filterParameters.copy(minScore = intent.newValue)
@@ -195,47 +206,72 @@ class SearchStoreFactory @Inject constructor(
         }
 
         private fun tagClicked(name: String) {
-            val visibleTags = state().filtersState.visibleTags
-            val reqTags = state().filtersState.filterParameters.reqTags.toMutableList()
+            val suggested = state().filtersState.suggestedTags.toMutableList()
+            val selected = state().filtersState.filterParameters.tags.toMutableList()
             val tag = visibleTags.find { it == name } ?: return
-            if (tag in reqTags)
-                reqTags.remove(tag)
-            else
-                reqTags.add(tag)
-            val params = state().filtersState.filterParameters.copy(
-                reqTags = reqTags
-            )
+            if (tag in selected) {
+                selected.remove(tag)
+                suggested.add(0, tag)
+            } else {
+                selected.add(tag)
+                suggested.remove(tag)
+            }
+            val params = state().filtersState.filterParameters.copy(tags = selected)
+            dispatch(Msg.TagsSuggestionChanged(suggested))
             updateFilterParams(params)
         }
 
         private fun ingredientClicked(name: String) {
-            val visibleIngredients = state().filtersState.visibleIngredients
-            val reqIngredients = state().filtersState.filterParameters.reqIngredients.toMutableList()
+            val suggested = state().filtersState.suggestedIngredients.toMutableList()
+            val selected = state().filtersState.filterParameters.ingredients.toMutableList()
             val ingredient = visibleIngredients.find { it == name } ?: return
-            if (ingredient in reqIngredients)
-                reqIngredients.remove(ingredient)
-            else
-                reqIngredients.add(ingredient)
-            val params = state().filtersState.filterParameters.copy(
-                reqIngredients = reqIngredients
-            )
+            if (ingredient in selected) {
+                selected.remove(ingredient)
+                suggested.add(0, ingredient)
+            }
+            else {
+                selected.add(ingredient)
+                suggested.remove(ingredient)
+            }
+            val params = state().filtersState.filterParameters.copy(ingredients = selected)
+            dispatch(Msg.IngredientsSuggestionChanged(suggested))
             updateFilterParams(params)
         }
 
         override fun executeAction(action: Action) {
             Timber.i("${this::class.simpleName}: Action is obtained: $action")
             when (action) {
-                is Action.IngredientsLoaded -> dispatch(Msg.IngredientsLoaded(action.ingredients))
-                is Action.TagsLoaded -> dispatch(Msg.TagsLoaded(action.tags))
+                is Action.IngredientsLoaded -> {
+                    visibleIngredients = action.ingredients
+                    dispatch(Msg.IngredientsSuggestionChanged(action.ingredients))
+                }
+                is Action.TagsLoaded -> {
+                    visibleTags = action.tags
+                    dispatch(Msg.TagsSuggestionChanged(action.tags))
+                }
+                is Action.InitialRecipeSampleLoaded ->
+                    initialRecipeSampleLoaded(action.recipes, action.scores)
+            }
+        }
+
+        private fun initialRecipeSampleLoaded(recipes: List<Recipe>, scores: Map<Int, Float>) {
+            if (state().searchStatus is SearchStore.State.SearchStatus.Initial) {
+                savedSearchResult = recipes
+                savedAvgScores = scores
+                val recipesModels = mapToRecipeModels(
+                    recipes,
+                    scores,
+                    favouriteIds,
+                    state().filtersState.filterParameters
+                )
+                dispatch(Msg.ChangeSearchContent(recipesModels))
             }
         }
 
         private fun search(query: String) {
             dispatch(Msg.LoadingStarted)
-            val userId = user?.id
-
             scope.launch(Dispatchers.IO) {
-                val searchResult = recipeUseCase.search(userId, query)
+                val searchResult = recipeUseCase.search(query)
                 val avgScores = scoreUseCase.getAvgScores(searchResult.map { it.id })
                 savedSearchResult = searchResult
                 savedAvgScores = avgScores
@@ -297,19 +333,17 @@ class SearchStoreFactory @Inject constructor(
                         copy(searchStatus = SearchStore.State.SearchStatus.Content(msg.recipes))
                 }
 
-                is Msg.IngredientsLoaded ->
-                    copy(filtersState = filtersState.copy(visibleIngredients = msg.ingredients))
+                is Msg.IngredientsSuggestionChanged ->
+                    copy(filtersState = filtersState.copy(suggestedIngredients = msg.ingredients))
 
-                is Msg.TagsLoaded ->
-                    copy(filtersState = filtersState.copy(visibleTags = msg.tags))
+                is Msg.TagsSuggestionChanged ->
+                    copy(filtersState = filtersState.copy(suggestedTags = msg.tags))
 
                 Msg.LoadingStarted -> copy(searchStatus = SearchStore.State.SearchStatus.Loading)
 
                 Msg.ExpandFiltersSheet -> copy(filtersState = filtersState.copy(expanded = true))
 
                 Msg.HideFiltersSheet -> copy(filtersState = filtersState.copy(expanded = false))
-
-                Msg.ResetFilters -> copy(filtersState = filtersState.copy(filterParameters = FilterParams()))
             }
         }
     }

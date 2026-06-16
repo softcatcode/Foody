@@ -7,13 +7,17 @@ import com.google.firebase.database.getValue
 import com.softcat.database.DatabaseRules
 import com.softcat.database.exceptions.ScoreIsAbsentException
 import com.softcat.database.exceptions.ScoresNodeIsAbsentException
+import com.softcat.database.local.dao.ScoreDao
 import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.remote.interfaces.ScoreManager
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import javax.inject.Inject
 
-class ScoresManagerImpl @Inject constructor(): ScoreManager {
+class ScoresManagerImpl @Inject constructor(
+    private val scoreDao: ScoreDao
+): ScoreManager {
 
     private val scoresStorage by lazy {
         Firebase.database.getReference(DatabaseRules.SCORES_STORAGE)
@@ -30,6 +34,8 @@ class ScoresManagerImpl @Inject constructor(): ScoreManager {
             scoreRef.setValue(score).await()
 
             Timber.d("Score saved: user=$userId, recipe=${score.recipeId}, value=${score.value}")
+            scoreDao.insert(score) // Кеширование в локальную БД.
+
             Result.success(Unit)
         } catch (e: DatabaseException) {
             Timber.e(e, "Firebase error saving score for user=$userId, recipe=${score.recipeId}")
@@ -57,6 +63,8 @@ class ScoresManagerImpl @Inject constructor(): ScoreManager {
             scoreRef.removeValue().await()
 
             Timber.d("Score removed: user=$userId, recipe=$recipeId")
+            scoreDao.remove(recipeId) // Обновление копии оценок.
+
             Result.success(Unit)
         } catch (e: DatabaseException) {
             Timber.e(e, "Firebase error removing score for user=$userId, recipe=$recipeId")
@@ -68,20 +76,67 @@ class ScoresManagerImpl @Inject constructor(): ScoreManager {
     }
 
     override suspend fun get(userId: String): Result<List<ScoreDbModel>> {
+        val requestResult = loadScoresRemote(userId)
+        requestResult.onSuccess { scoreList ->
+            scoreDao.insertAll(scoreList)
+            return Result.success(scoreList)
+        }
+
         return try {
-            val userScoresRef = scoresStorage.child(userId)
-            val snapshot = userScoresRef.get().await()
+            val localScores = scoreDao.getAll()
+            Result.success(localScores)
+        } catch (_: Exception) {
+            requestResult
+        }
+    }
 
-            if (!snapshot.exists()) {
-                Timber.d("No scores found for user=$userId")
-                return Result.failure(ScoresNodeIsAbsentException(userId))
+    override suspend fun getScoreValue(userId: String, recipeId: Int): Result<Int> {
+        val score = loadScoreValueRemote(userId, recipeId).getOrElse { error ->
+            return try {
+                val localScore = scoreDao.get(recipeId)!!
+                Result.success(localScore.value)
+            } catch (_: Exception) {
+                Result.failure(error)
             }
-            val scores = snapshot.children
-                .mapNotNull { it.getValue<ScoreDbModel>() }
-                .sortedByDescending { it.date }
+        }
+        return Result.success(score)
+    }
 
-            Timber.d("Loaded ${scores.size} scores for user=$userId")
-            Result.success(scores)
+    override suspend fun updateScoreCache(userId: String?): Result<Unit> {
+        if (userId == null) {
+            scoreDao.clear()
+            return Result.success(Unit)
+        } else {
+            val scores = get(userId).getOrElse {
+                return Result.failure(it)
+            }
+            return try {
+                scoreDao.clear()
+                scoreDao.insertAll(scores)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun loadScoresRemote(userId: String): Result<List<ScoreDbModel>> {
+        return try {
+            withTimeout(TIMEOUT) {
+                val userScoresRef = scoresStorage.child(userId)
+                val snapshot = userScoresRef.get().await()
+
+                if (!snapshot.exists()) {
+                    Timber.d("No scores found for user=$userId")
+                    return@withTimeout Result.failure(ScoresNodeIsAbsentException(userId))
+                }
+                val scores = snapshot.children
+                    .mapNotNull { it.getValue<ScoreDbModel>() }
+                    .sortedByDescending { it.date }
+
+                Timber.d("Loaded ${scores.size} scores for user=$userId")
+                Result.success(scores)
+            }
         } catch (e: DatabaseException) {
             Timber.e(e, "Firebase error loading scores for user=$userId")
             Result.failure(e)
@@ -91,24 +146,27 @@ class ScoresManagerImpl @Inject constructor(): ScoreManager {
         }
     }
 
-    override suspend fun getScoreValue(userId: String, recipeId: Int): Result<Int> {
+    suspend fun loadScoreValueRemote(userId: String, recipeId: Int): Result<Int> {
         return try {
-            val userScoresRef = scoresStorage
-                .child(userId)
-                .child(recipeId.toString())
-            val snapshot = userScoresRef.get().await()
+            withTimeout(TIMEOUT) {
+                val userScoresRef = scoresStorage
+                    .child(userId)
+                    .child(recipeId.toString())
+                val snapshot = userScoresRef.get().await()
 
-            if (!snapshot.exists()) {
-                Timber.d("No scores found for user=$userId and recipe=$recipeId")
-                return Result.failure(ScoreIsAbsentException(userId, recipeId))
+                if (!snapshot.exists()) {
+                    Timber.d("No scores found for user=$userId and recipe=$recipeId")
+                    return@withTimeout Result.failure(ScoreIsAbsentException(userId, recipeId))
+                }
+                val score = snapshot.getValue<ScoreDbModel>()?.value ?:
+                    return@withTimeout Result.failure(
+                        Exception(
+                            "Score value for user=$userId and recipe=$recipeId is null"
+                        )
+                    )
+                Timber.d("Loaded score $score for user=$userId and recipe $recipeId")
+                Result.success(score)
             }
-            val score = snapshot.getValue<ScoreDbModel>()?.value ?: return Result.failure(
-                Exception(
-                    "Score value for user=$userId and recipe=$recipeId is null"
-                )
-            )
-            Timber.d("Loaded score $score for user=$userId and recipe $recipeId")
-            Result.success(score)
         } catch (e: DatabaseException) {
             Timber.e(e, "Firebase error loading scores for user=$userId")
             Result.failure(e)
@@ -116,5 +174,9 @@ class ScoresManagerImpl @Inject constructor(): ScoreManager {
             Timber.e(e, "Unexpected error loading scores for user=$userId")
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private const val TIMEOUT = 5000L
     }
 }

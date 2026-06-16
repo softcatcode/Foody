@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softcat.foody.R
@@ -54,7 +56,9 @@ private fun IngredientCard(
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = White
+            color = White,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -68,7 +72,6 @@ private fun RecipeData(
     Column(
         modifier = Modifier
             .wrapContentSize()
-            .padding(bottom = 2.dp)
             .then(modifier)
     ) {
         Row {
@@ -78,8 +81,10 @@ private fun RecipeData(
                 style = MaterialTheme.typography.labelLarge,
                 color = White,
                 fontWeight = FontWeight.Bold,
-                maxLines = 2
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
+            Spacer(Modifier.width(4.dp))
             if (recipe.scoreVisible) {
                 RecipeScore(
                     modifier = Modifier,
@@ -92,21 +97,28 @@ private fun RecipeData(
             text = recipe.description,
             style = MaterialTheme.typography.bodyMedium,
             color = White,
-            maxLines = 4
+            maxLines = 4,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(10.dp))
-        FlowRow(
+        Box(
             modifier = Modifier
                 .weight(3f)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(15.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            contentAlignment = Alignment.BottomStart
         ) {
-            recipe.ingredients.forEach {
-                IngredientCard(
-                    label = it,
-                    gradient = ingredientGradient,
-                )
+            FlowRow(
+                modifier = Modifier
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                recipe.ingredients.forEach {
+                    IngredientCard(
+                        label = it,
+                        gradient = ingredientGradient,
+                    )
+                }
             }
         }
     }
@@ -139,26 +151,29 @@ private fun RecipeScore(
 fun RecipeCard(
     modifier: Modifier = Modifier,
     recipe: RecipeModel,
+    index: Int,
 
     onFavouriteClick: () -> Unit,
     onClick: (Int) -> Unit
 ) {
-    val colors = RecipeCardGradients.getColors()
+    val colors = RecipeCardGradients.getColors(index)
     Card(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         ),
-        shape = RoundedCornerShape(10),
+        shape = RoundedCornerShape(5),
         onClick = { onClick(recipe.id) }
     ) {
         Box(
             modifier = Modifier
                 .background(colors.mainGradient)
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             RecipeData(
-                modifier = Modifier.align(Alignment.TopStart).padding(bottom = 32.dp),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(bottom = 24.dp),
                 recipe = recipe,
                 ingredientGradient = colors.ingredientGradient,
             )
@@ -255,6 +270,7 @@ fun RecipeCard_Preview() {
                 score = "3.45",
                 scoreVisible = true,
             ),
+            index = 2,
             onFavouriteClick = {},
             onClick = {},
         )

@@ -4,6 +4,7 @@ import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.domain.entities.Score
+import com.softcat.domain.exceptions.NoScoresException
 import com.softcat.domain.interfaces.RecipeRepository
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
@@ -12,21 +13,24 @@ import javax.inject.Inject
 class RecipeUseCase @Inject constructor(
     private val repository: RecipeRepository
 ) {
-    suspend fun search(
-        userId: String?,
-        query: String,
-    ): List<Recipe> {
-        Timber.i("${this::class.simpleName} search($userId, $query) invoked")
-        return repository.search(userId, query)
+    suspend fun search(query: String): List<Recipe> {
+        Timber.i("${this::class.simpleName} search($query) invoked")
+        return if (query.isNotBlank())
+            repository.search(query)
+        else
+            repository.getRecipeSample()
     }
 
     suspend fun recommend(
         scores: List<Score>,
         ingredients: List<Ingredient>,
+        maxAbsentIngredients: Int,
         tags: List<RecipeTag>
-    ): List<Recipe> {
+    ): Result<List<Recipe>> {
         Timber.i("${this::class.simpleName} recommend(List(${scores.size}), $ingredients, $tags) invoked")
-        return repository.recommend(scores, ingredients, tags)
+        if (scores.size < 2)
+            return Result.failure(NoScoresException())
+        return repository.recommend(scores, ingredients, maxAbsentIngredients, tags)
     }
 
     suspend fun get(recipeIds: List<Int>): List<Recipe> {

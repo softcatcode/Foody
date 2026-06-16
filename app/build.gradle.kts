@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":database"))
+    implementation(project(":recommender"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -83,6 +84,9 @@ dependencies {
     // di wth dagger
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
+
+    implementation(libs.gif)
+    implementation(libs.coil.gif)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

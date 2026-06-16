@@ -19,5 +19,7 @@ interface InitializationStore: Store<InitializationStore.Intent, InitializationS
 
     sealed interface Label {
         data object Initialized: Label
+
+        data class Error(val msg: String): Label
     }
 }

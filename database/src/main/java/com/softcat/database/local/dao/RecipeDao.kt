@@ -17,8 +17,14 @@ interface RecipeDao {
     """)
     suspend fun search(query: String, limit: Int): List<RecipeDbModel>
 
+    @Query("select * from $RECIPES_TABLE_NAME limit :limit")
+    suspend fun getSample(limit: Int): List<RecipeDbModel>
+
     @Query("select * from $RECIPES_TABLE_NAME where id = :recipeId")
     suspend fun get(recipeId: Int): RecipeDbModel?
+
+    @Query("select * from $RECIPES_TABLE_NAME")
+    suspend fun getAll(): List<RecipeDbModel>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(recipes: List<RecipeDbModel>)

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class InitializeUseCase @Inject constructor(
     private val repository: InitializeRepository
 ) {
-    suspend operator fun invoke(requiredCount: Int) {
+    suspend operator fun invoke(requiredCount: Int): Result<Unit> {
         Timber.i("${this::class.simpleName} invoked")
         return repository.initializeDatabase(requiredCount)
     }

@@ -15,8 +15,8 @@ interface SearchStore: Store<SearchStore.Intent, SearchStore.State, SearchStore.
 
         data class FiltersSheetState(
             val filterParameters: FilterParams,
-            val visibleTags: List<String>,
-            val visibleIngredients: List<String>,
+            val suggestedTags: List<String>,
+            val suggestedIngredients: List<String>,
             val expanded: Boolean
         )
 

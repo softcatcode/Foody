@@ -1,10 +1,13 @@
 package com.softcat.foody.screens.initialization
 
+import android.app.Application
 import android.content.Context
+import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
+import com.softcat.foody.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -18,7 +21,8 @@ import timber.log.Timber
 class InitializationComponentImpl @AssistedInject constructor(
     @Assisted("context") private val componentContext: ComponentContext,
     @Assisted("navigate") private val openFoodyRootScreen: () -> Unit,
-    private val initializationStoreFactory: InitializationStoreFactory
+    private val initializationStoreFactory: InitializationStoreFactory,
+    private val application: Application
 ): InitializationComponent, ComponentContext by componentContext {
 
     private val store = componentContext.instanceKeeper.getStore {
@@ -39,6 +43,9 @@ class InitializationComponentImpl @AssistedInject constructor(
     private fun labelCollector(label: InitializationStore.Label) {
         when (label) {
             InitializationStore.Label.Initialized -> openFoodyRootScreen()
+            is InitializationStore.Label.Error -> {
+                Toast.makeText(application, label.msg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
