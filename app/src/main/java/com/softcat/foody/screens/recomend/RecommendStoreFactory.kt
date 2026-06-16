@@ -198,6 +198,7 @@ class RecommendStoreFactory
                     tags = selectedTags
                 )
                 result.onSuccess { recommendation ->
+                    this@RecommendationsExecutor.recommendation = recommendation
                     val recipeModels = recommendation.map { recipe ->
                         RecipeRecommendationModel(
                             id = recipe.id,
