@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -232,6 +234,65 @@ fun DetailsTopBar(
                     isFavourite = isFavourite,
                     onClick = onChangeFavouriteStatus
                 )
+            }
+        },
+        navigationIcon = {
+            IconButton(onBackClicked) {
+                Icon(
+                    modifier = Modifier.size(32.dp),
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.background
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun FridgeTopBar(
+    onCartClicked: () -> Unit = {},
+    onResetClicked: () -> Unit = {},
+    onBackClicked: () -> Unit = {}
+) {
+    TopAppBar(
+        modifier = Modifier.height(64.dp),
+        expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
+        windowInsets = TopAppBarDefaults.windowInsets
+            .only(WindowInsetsSides.Horizontal),
+        title = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.fridge_title),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineSmall,
+                color = White
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors().copy(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        actions = {
+            Row {
+                IconButton(onResetClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.reset),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = White
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
+                IconButton(onCartClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.cart),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = White
+                    )
+                }
             }
         },
         navigationIcon = {

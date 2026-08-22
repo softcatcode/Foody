@@ -102,4 +102,6 @@
     <string name="fridge_category_spice_sauce">Специи и соусы</string>
     <string name="fridge_category_fruit_vegetables">Фрукты и овощи</string>
     <string name="fridge_category_other">Другое</string>
+    <string name="fridge_title">Холодильник</string>
+    <string name="choose_available_products">Выберите доступные продукты</string>
 </resources>

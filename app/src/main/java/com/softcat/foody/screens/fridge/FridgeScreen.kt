@@ -1,0 +1,163 @@
+package com.softcat.foody.screens.fridge
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.softcat.foody.R
+import com.softcat.foody.common.FridgeTopBar
+import com.softcat.foody.ui.theme.BaseOrange
+import com.softcat.foody.ui.theme.FoodyTheme
+import com.softcat.foody.ui.theme.Pink
+import com.softcat.foody.ui.theme.Purple
+
+@Composable
+fun FridgeScreen(component: FridgeComponent) {
+    val state by component.model.collectAsStateWithLifecycle()
+
+    FridgeContent(
+        state = state,
+        onIngredientClick = component::removeIngredient,
+        onAddIngredientClicked = component::addIngredientClick,
+        onCartClicked = component::openCart,
+        onResetClicked = component::resetIngredients,
+        onBackClicked = component::back,
+    )
+}
+
+@Composable
+private fun FridgeContent(
+    state: FridgeStore.State,
+    onIngredientClick: (String) -> Unit,
+    onAddIngredientClicked: () -> Unit,
+    onCartClicked: () -> Unit,
+    onResetClicked: () -> Unit,
+    onBackClicked: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    Scaffold(
+        topBar = {
+            FridgeTopBar(
+                onCartClicked = onCartClicked,
+                onResetClicked = onResetClicked,
+                onBackClicked = onBackClicked
+            )
+        },
+        floatingActionButton = {
+            AddIngredientButton(
+                onClick = onAddIngredientClicked
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(top = paddingValues.calculateTopPadding())
+                .padding(16.dp)
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            state.categories.forEach { model ->
+                IngredientCategoryCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    titleResId = model.titleResId,
+                    iconResId = model.iconResId,
+                    color = model.color,
+                    names = model.names,
+                    onIngredientClick = onIngredientClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddIngredientButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = CircleShape,
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 8.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = BaseOrange
+        )
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.plus),
+            contentDescription = null,
+            tint = White,
+            modifier = Modifier
+                .padding(16.dp)
+                .size(32.dp)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FridgeContent_Preview() {
+    val state = FridgeStore.State(
+        categories = listOf(
+            FridgeStore.State.IngredientCategoryCard(
+                titleResId = R.string.fridge_category_crops,
+                iconResId = R.drawable.crops,
+                names = listOf("Гречка", "Перловка", "Овсянка"),
+                color = BaseOrange,
+            ),
+
+            FridgeStore.State.IngredientCategoryCard(
+                titleResId = R.string.fridge_category_dairy,
+                iconResId = R.drawable.millk,
+                names = listOf("Молоко", "Творог"),
+                color = Purple,
+            ),
+
+            FridgeStore.State.IngredientCategoryCard(
+                titleResId = R.string.fridge_category_fruit_vegetables,
+                iconResId = R.drawable.vegetables,
+                names = listOf("Яблоко", "Банан", "Морковь"),
+                color = BaseOrange,
+            ),
+
+            FridgeStore.State.IngredientCategoryCard(
+                titleResId = R.string.fridge_category_meat_fish,
+                iconResId = R.drawable.meat,
+                names = listOf("Говядина", "Свинина"),
+                color = Pink,
+            ),
+        )
+    )
+
+    FoodyTheme {
+        FridgeContent(
+            state = state,
+            onIngredientClick = {},
+            onAddIngredientClicked = {},
+            onCartClicked = {},
+            onResetClicked = {},
+            onBackClicked = {},
+        )
+    }
+}
