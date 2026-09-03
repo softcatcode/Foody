@@ -125,11 +125,12 @@ private fun FridgeContent_Preview() {
                 iconResId = R.drawable.crops,
                 names = listOf("Гречка", "Перловка", "Овсянка"),
                 color = BaseOrange,
-            ),
+
+                ),
 
             FridgeStore.State.IngredientCategoryCard(
                 titleResId = R.string.fridge_category_dairy,
-                iconResId = R.drawable.millk,
+                iconResId = R.drawable.milk,
                 names = listOf("Молоко", "Творог"),
                 color = Purple,
             ),
@@ -147,7 +148,8 @@ private fun FridgeContent_Preview() {
                 names = listOf("Говядина", "Свинина"),
                 color = Pink,
             ),
-        )
+        ),
+        dialogState = FridgeStore.State.SelectIngredientDialogState.Hidden
     )
 
     FoodyTheme {

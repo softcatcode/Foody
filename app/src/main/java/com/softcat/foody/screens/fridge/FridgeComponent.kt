@@ -10,7 +10,11 @@ interface FridgeComponent {
 
     fun addIngredientClick()
 
+    fun openShoppingList()
+
     fun openCart()
+
+    fun submitIngredient(ingredientId: Int)
 
     fun back()
 

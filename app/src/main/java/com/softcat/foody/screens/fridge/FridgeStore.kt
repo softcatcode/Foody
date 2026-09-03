@@ -2,12 +2,15 @@ package com.softcat.foody.screens.fridge
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.arkivanov.mvikotlin.core.store.Store
+import com.softcat.domain.entities.Ingredient
 
-interface FridgeStore {
+interface FridgeStore: Store<FridgeStore.Intent, FridgeStore.State, Nothing> {
 
     @Immutable
     data class State(
-        val categories: List<IngredientCategoryCard>
+        val categories: List<IngredientCategoryCard>,
+        val dialogState: SelectIngredientDialogState
     ) {
         @Immutable
         data class IngredientCategoryCard(
@@ -16,5 +19,22 @@ interface FridgeStore {
             val color: Color,
             val names: List<String>
         )
+
+        sealed interface SelectIngredientDialogState {
+            data object Hidden: SelectIngredientDialogState
+
+            @Immutable
+            data class Shown(
+                val query: String,
+                val searchResult: List<Ingredient>
+            ): SelectIngredientDialogState
+        }
+    }
+
+    sealed interface Intent {
+        data object Reset: Intent
+        data object AddIngredientClick: Intent
+
+        data class RemoveIngredient(val name: String): Intent
     }
 }

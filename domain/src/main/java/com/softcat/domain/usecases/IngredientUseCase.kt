@@ -2,6 +2,7 @@ package com.softcat.domain.usecases
 
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.interfaces.IngredientRepository
+import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -17,5 +18,20 @@ class IngredientUseCase @Inject constructor(
     suspend fun search(query: String): List<Ingredient> {
         Timber.i("${this::class.simpleName} search($query) invoked")
         return repository.search(query)
+    }
+
+    suspend fun getAvailableIngredients(): Flow<List<Ingredient>> {
+        Timber.i("${this::class.simpleName} getAvailableIngredients() invoked")
+        return repository.getAvailableIngredients()
+    }
+
+    suspend fun setAvailableIngredients(ingredients: List<Int>) {
+        Timber.i("${this::class.simpleName} setAvailableIngredients() invoked")
+        repository.setAvailableIngredients(ingredients)
+    }
+
+    suspend fun resetAvailableIngredients() {
+        Timber.i("${this::class.simpleName} resetAvailableIngredients() invoked")
+        repository.resetAvailableIngredients()
     }
 }
