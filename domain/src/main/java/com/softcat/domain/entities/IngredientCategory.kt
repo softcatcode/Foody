@@ -1,4 +1,4 @@
-package com.softcat.foody.screens.fridge
+package com.softcat.domain.entities
 
 enum class IngredientCategory {
     Crops,

@@ -62,7 +62,7 @@ class RecipeMapper @Inject constructor(
         }
         ingredientMap = database
             .getIngredients(limit = 10000)
-            .map { Ingredient(it.id, it.name) }
+            .map { it.toEntity() }
             .associateBy { ingredient -> ingredient.id }
         tagMap = database
             .getTags(limit = 10000)
