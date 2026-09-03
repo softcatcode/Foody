@@ -25,7 +25,8 @@ class RecommendComponentImpl @AssistedInject constructor(
     private val storeFactory: RecommendStoreFactory,
     private val application: Application,
     @Assisted("context") componentContext: ComponentContext,
-    @Assisted("open_recipe") private val openRecipeDetailsCallback: (Recipe) -> Unit
+    @Assisted("open_recipe") private val openRecipeDetailsCallback: (Recipe) -> Unit,
+    @Assisted("open_fridge") private val openFridgeCallback: () -> Unit,
 ): RecommendComponent, ComponentContext by componentContext {
 
     private val store = instanceKeeper.getStore { storeFactory.create(componentContext.lifecycle) }
@@ -104,6 +105,11 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.OpenRecipeDetails(recipeId))
     }
 
+    override fun openFridge() {
+        Timber.i("${this::class.simpleName}: openFridge()")
+        openFridgeCallback()
+    }
+
     override fun changeFavouriteStatus(recipeId: Int) {
         Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId)")
         store.accept(RecommendStore.Intent.ChangeFavouriteStatus(recipeId))
@@ -133,7 +139,8 @@ class RecommendComponentImpl @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted("context") componentContext: ComponentContext,
-            @Assisted("open_recipe") openRecipeDetailsCallback: (Recipe) -> Unit
+            @Assisted("open_recipe") openRecipeDetailsCallback: (Recipe) -> Unit,
+            @Assisted("open_fridge") openFridgeCallback: () -> Unit,
         ): RecommendComponentImpl
     }
 }

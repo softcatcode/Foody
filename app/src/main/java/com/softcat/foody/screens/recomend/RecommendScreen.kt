@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -55,6 +57,7 @@ import com.softcat.foody.common.ElementsScrollableFlow
 import com.softcat.foody.common.RecommendationButton
 import com.softcat.foody.common.SimpleAppBar
 import com.softcat.foody.screens.recomend.RecommendStore.State.RecommendationStatus
+import com.softcat.foody.ui.theme.BaseOrange
 import com.softcat.foody.ui.theme.FoodyTheme
 
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -71,6 +74,7 @@ private fun IngredientsAndTagsSelection(
     removeIngredientClicked: (String) -> Unit,
     removeTagClicked: (String) -> Unit,
     changeMaxAbsentIngredients: (Int) -> Unit,
+    onOpenFridgeClicked: () -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val maxHeight = screenHeight * 0.2f
@@ -86,6 +90,16 @@ private fun IngredientsAndTagsSelection(
             color = MaterialTheme.colorScheme.primary,
             title = stringResource(R.string.ingredients),
             iconId = R.drawable.vegetables,
+            navigationIcon = {
+                IconButton(onOpenFridgeClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.cart),
+                        tint = BaseOrange,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
         )
         Spacer(Modifier.height(12.dp))
         ElementsScrollableFlow(
@@ -368,6 +382,7 @@ fun RecommendScreen(component: RecommendComponent) {
         showAddIngredientDialog = component::showAddIngredientDialog,
         changeMaxAbsentIngredients = component::changeMaxAbsentIngredients,
         openRecipeDetails = component::openRecipeDetails,
+        onOpenFridgeClicked = component::openFridge,
     )
     AddTagsDialog(
         state = state.tagDialogState,
@@ -396,6 +411,7 @@ fun RecommendContent(
     showAddTagDialog: () -> Unit,
     showAddIngredientDialog: () -> Unit,
     changeMaxAbsentIngredients: (Int) -> Unit,
+    onOpenFridgeClicked: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -421,6 +437,7 @@ fun RecommendContent(
                 ingredients = state.ingredients,
                 maxAbsentIngredients = state.maxAbsentIngredients,
                 changeMaxAbsentIngredients = changeMaxAbsentIngredients,
+                onOpenFridgeClicked = onOpenFridgeClicked
             )
             Spacer(Modifier.height(6.dp))
             Spacer(
@@ -511,7 +528,8 @@ private fun Recommendations_Preview() {
             removeIngredient = {},
             showAddTagDialog = {},
             showAddIngredientDialog = {},
-            changeMaxAbsentIngredients = {}
+            changeMaxAbsentIngredients = {},
+            onOpenFridgeClicked = {},
         )
     }
 }

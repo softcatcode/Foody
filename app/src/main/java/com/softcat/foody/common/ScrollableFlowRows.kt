@@ -45,6 +45,7 @@ fun ElementsScrollableFlow(
     iconId: Int = R.drawable.vegetables,
     showAddButton: Boolean = true,
     appendixContent: @Composable BoxScope.() -> Unit = {},
+    navigationIcon: @Composable () -> Unit = {}
 ) {
     Card(
         modifier = modifier,
@@ -73,6 +74,7 @@ fun ElementsScrollableFlow(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge
                 )
+                navigationIcon()
             }
             Column(
                 modifier = Modifier

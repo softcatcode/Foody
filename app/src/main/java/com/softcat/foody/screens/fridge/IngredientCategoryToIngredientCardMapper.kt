@@ -1,6 +1,5 @@
 package com.softcat.foody.screens.fridge
 
-import androidx.compose.ui.graphics.Color
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.IngredientCategory
 import com.softcat.foody.R

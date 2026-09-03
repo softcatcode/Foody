@@ -28,6 +28,8 @@ interface RecommendComponent {
 
     fun openRecipeDetails(recipeId: Int)
 
+    fun openFridge()
+
     fun changeFavouriteStatus(recipeId: Int)
 
     fun searchIngredients(query: String)
