@@ -118,7 +118,7 @@ private fun IngredientItem(
         onClick = { onClick(name) }
     ) {
         Text(
-            modifier = Modifier.padding(vertical = 2.dp, horizontal = 6.dp),
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
             text = name,
             color = White,
             style = MaterialTheme.typography.labelMedium

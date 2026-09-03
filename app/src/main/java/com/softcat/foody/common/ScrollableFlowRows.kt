@@ -2,8 +2,6 @@ package com.softcat.foody.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -18,12 +16,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +45,6 @@ fun ElementsScrollableFlow(
     title: String = stringResource(R.string.ingredients),
     iconId: Int = R.drawable.vegetables,
     showAddButton: Boolean = true,
-    appendixContent: @Composable BoxScope.() -> Unit = {},
     navigationIcon: @Composable () -> Unit = {}
 ) {
     Card(
@@ -52,7 +52,8 @@ fun ElementsScrollableFlow(
         elevation = CardDefaults.cardElevation(10.dp),
         shape = RoundedCornerShape(25.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.background
         )
     ) {
         Column(
@@ -72,8 +73,10 @@ fun ElementsScrollableFlow(
                 Spacer(Modifier.width(16.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Black
                 )
+                Spacer(Modifier.weight(1f))
                 navigationIcon()
             }
             Column(
@@ -85,32 +88,26 @@ fun ElementsScrollableFlow(
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     elements.forEach {
-                        SimpleStringValueCard(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            isActive = true,
-                            label = it,
-                            color = color,
-                            onClick = { removeElementClicked(it) }
-                        )
+                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 32.dp) {
+                            SimpleStringValueCard(
+                                isActive = true,
+                                label = it,
+                                color = color,
+                                onClick = { removeElementClicked(it) }
+                            )
+                        }
                     }
                     if (showAddButton) {
                         AddElementButton(
-                            modifier = Modifier.padding(horizontal = 4.dp),
                             onClick = addElementClicked,
                             color = color
                         )
                     }
                 }
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                    content = appendixContent
-                )
             }
         }
     }

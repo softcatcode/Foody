@@ -93,13 +93,14 @@ private fun IngredientsAndTagsSelection(
             navigationIcon = {
                 IconButton(onOpenFridgeClicked) {
                     Icon(
-                        painter = painterResource(R.drawable.cart),
+                        painter = painterResource(R.drawable.fridge),
                         tint = BaseOrange,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp)
                     )
                 }
-            }
+            },
+            showAddButton = false
         )
         Spacer(Modifier.height(12.dp))
         ElementsScrollableFlow(
@@ -110,66 +111,80 @@ private fun IngredientsAndTagsSelection(
             color = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.tags),
             iconId = R.drawable.settings_image,
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    text = stringResource(R.string.max_absent_ingredients),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 2,
-                )
-                Slider(
-                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-                    value = maxAbsentIngredients.toFloat(),
-                    onValueChange = { changeMaxAbsentIngredients(it.toInt()) },
-                    colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.primary,
-                        activeTrackColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    steps = 10,
-                    valueRange = 0f..10f,
-                    thumb = {
-                        Box(
-                            modifier = Modifier.background(Transparent),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Spacer(
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary),
-                            )
-                        }
-                    },
-                    track = {
-                        Row {
-                            Spacer(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .weight(maxAbsentIngredients.toFloat() + 0.1f)
-                                    .background(MaterialTheme.colorScheme.primary),
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .weight(10.1f - maxAbsentIngredients.toFloat())
-                                    .background(MaterialTheme.colorScheme.tertiary),
-                            )
-                        }
-                    },
-                )
-                Text(
-                    text = maxAbsentIngredients.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
-            }
-        }
+        )
+        AbsentIngredientsSlider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .padding(vertical = 8.dp),
+            maxAbsentIngredients = maxAbsentIngredients,
+            changeMaxAbsentIngredients = changeMaxAbsentIngredients
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AbsentIngredientsSlider(
+    modifier: Modifier = Modifier,
+    maxAbsentIngredients: Int,
+    changeMaxAbsentIngredients: (Int) -> Unit
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(0.5f),
+            text = stringResource(R.string.max_absent_ingredients),
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 2,
+        )
+        Slider(
+            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+            value = maxAbsentIngredients.toFloat(),
+            onValueChange = { changeMaxAbsentIngredients(it.toInt()) },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+            ),
+            steps = 10,
+            valueRange = 0f..10f,
+            thumb = {
+                Box(
+                    modifier = Modifier.background(Transparent),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                }
+            },
+            track = {
+                Row {
+                    Spacer(
+                        modifier = Modifier
+                            .height(2.dp)
+                            .weight(maxAbsentIngredients.toFloat() + 0.1f)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(2.dp)
+                            .weight(10.1f - maxAbsentIngredients.toFloat())
+                            .background(MaterialTheme.colorScheme.tertiary),
+                    )
+                }
+            },
+        )
+        Text(
+            text = maxAbsentIngredients.toString(),
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1
+        )
     }
 }
 
@@ -192,6 +207,7 @@ private fun Initial(
         RecommendationButton(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(bottom = 4.dp)
                 .height(48.dp),
             isActive = true,
             onClick = onRecommendClick,
@@ -439,7 +455,6 @@ fun RecommendContent(
                 changeMaxAbsentIngredients = changeMaxAbsentIngredients,
                 onOpenFridgeClicked = onOpenFridgeClicked
             )
-            Spacer(Modifier.height(6.dp))
             Spacer(
                 modifier = Modifier
                     .height(1.dp)

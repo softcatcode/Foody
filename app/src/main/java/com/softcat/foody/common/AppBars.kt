@@ -1,6 +1,5 @@
 package com.softcat.foody.common
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,9 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -51,7 +46,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.softcat.foody.R
-import com.softcat.foody.ui.theme.LightGray
 
 @Composable
 @Preview(showBackground = true)
@@ -59,11 +53,6 @@ fun NavigationBar(
     selectedIndex: Int = 0,
     onIndexSelected: (Int) -> Unit = {}
 ) {
-    val shadow = Brush.linearGradient(
-        colors = listOf(Black, White),
-        start = Offset(0f, Float.POSITIVE_INFINITY),
-        end = Offset(0f, 0f)
-    )
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
