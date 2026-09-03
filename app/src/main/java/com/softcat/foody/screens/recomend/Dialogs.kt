@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.softcat.domain.entities.Ingredient
+import com.softcat.domain.entities.IngredientCategory
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.foody.R
 import com.softcat.foody.common.SearchLine
@@ -175,7 +176,8 @@ private fun AddIngredientsDialog_Preview() {
         searchResult = listOf(
             Ingredient(
                 id = 1,
-                name = "tomato"
+                name = "tomato",
+                IngredientCategory.FruitAndVegetables
             ),
         )
     )

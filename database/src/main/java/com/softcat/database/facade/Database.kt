@@ -10,7 +10,6 @@ import com.softcat.database.remote.interfaces.FavouritesManager
 import com.softcat.database.local.dao.RecipeDao
 import com.softcat.database.local.dao.RecipeVectorDao
 import com.softcat.database.local.dao.TagDao
-import com.softcat.database.models.IngredientDbModel
 import com.softcat.database.models.UserDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
 import com.softcat.database.remote.interfaces.ScoreManager
