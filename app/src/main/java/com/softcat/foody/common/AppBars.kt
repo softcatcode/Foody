@@ -32,14 +32,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.softcat.foody.R
 import com.softcat.foody.ui.theme.LightGray
@@ -51,15 +60,14 @@ fun NavigationBar(
     onIndexSelected: (Int) -> Unit = {}
 ) {
     val shadow = Brush.linearGradient(
-        colors = listOf(LightGray, White),
+        colors = listOf(Black, White),
         start = Offset(0f, Float.POSITIVE_INFINITY),
         end = Offset(0f, 0f)
     )
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .background(shadow)
-            .offset(y = 16.dp),
+            .shadow(),
         contentPadding = PaddingValues(0.dp),
     ) {
         Card(
@@ -102,6 +110,32 @@ fun NavigationBar(
                 }
             }
         }
+    }
+}
+
+private fun Modifier.shadow(
+    color: Color = Black.copy(alpha = 0.15f),
+    blur: Dp = 6.dp,
+    offsetX: Dp = 0.dp,
+    offsetY: Dp = 0.dp
+) = drawBehind {
+    drawIntoCanvas { canvas ->
+        val paint = Paint().asFrameworkPaint().apply {
+            this.color = Color.Transparent.toArgb()
+            setShadowLayer(
+                blur.toPx(),
+                offsetX.toPx(),
+                offsetY.toPx(),
+                color.toArgb()
+            )
+        }
+        canvas.nativeCanvas.drawRect(
+            0f,
+            0f,
+            size.width,
+            size.height,
+            paint
+        )
     }
 }
 
