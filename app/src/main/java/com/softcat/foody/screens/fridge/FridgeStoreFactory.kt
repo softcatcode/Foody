@@ -10,9 +10,11 @@ import com.softcat.domain.usecases.IngredientUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
-class FridgeStoreFactory(
+class FridgeStoreFactory @Inject constructor(
     private val ingredientUseCase: IngredientUseCase,
     private val storeFactory: StoreFactory
 ) {
@@ -33,7 +35,9 @@ class FridgeStoreFactory(
         override fun invoke() {
             scope.launch(Dispatchers.IO) {
                 ingredientUseCase.getAvailableIngredients().collectLatest { ingredients ->
-                    dispatch(Action.AvailableIngredientsUpdate(ingredients))
+                    withContext(Dispatchers.Main) {
+                        dispatch(Action.AvailableIngredientsUpdate(ingredients))
+                    }
                 }
             }
         }
