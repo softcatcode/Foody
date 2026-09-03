@@ -13,4 +13,10 @@ data class IngredientDbModel(
 
     @ColumnInfo(name = "name")
     val name: String,
+
+    @ColumnInfo(name = "category")
+    val category: Int,
+
+    @ColumnInfo(name = "isDefaultAvailable")
+    val isDefaultAvailable: Boolean
 )

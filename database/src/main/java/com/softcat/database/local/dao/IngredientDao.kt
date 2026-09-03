@@ -34,4 +34,12 @@ interface IngredientDao {
         limit :limit
     """)
     suspend fun search(query: String, limit: Int): List<IngredientDbModel>
+
+    @Query(
+        """
+            select * from $INGREDIENTS_TABLE_NAME
+            where isDefaultAvailable
+        """
+    )
+    suspend fun getDefault(): List<IngredientDbModel>
 }

@@ -43,11 +43,15 @@ interface DatabaseFacade {
 
     suspend fun searchIngredient(query: String, limit: Int): List<IngredientDbModel>
 
+    suspend fun getDefaultAvailableIngredients(): List<IngredientDbModel>
+
     suspend fun searchTag(query: String, limit: Int): List<TagDbModel>
 
     suspend fun initialize(requiredCount: Int): Result<Unit>
 
     suspend fun getIngredients(limit: Int): List<IngredientDbModel>
+
+    suspend fun getIngredients(ids: List<Int>): List<IngredientDbModel>
 
     suspend fun getTags(limit: Int): List<TagDbModel>
 

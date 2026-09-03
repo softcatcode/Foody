@@ -10,6 +10,7 @@ import com.softcat.database.remote.interfaces.FavouritesManager
 import com.softcat.database.local.dao.RecipeDao
 import com.softcat.database.local.dao.RecipeVectorDao
 import com.softcat.database.local.dao.TagDao
+import com.softcat.database.models.IngredientDbModel
 import com.softcat.database.models.UserDbModel
 import com.softcat.database.remote.interfaces.InitializeManager
 import com.softcat.database.remote.interfaces.ScoreManager
@@ -119,6 +120,8 @@ class Database @Inject constructor(
 
     override suspend fun searchIngredient(query: String, limit: Int) = ingredientDao.search(query, limit)
 
+    override suspend fun getDefaultAvailableIngredients() = ingredientDao.getDefault()
+
     override suspend fun searchTag(query: String, limit: Int) = tagDao.search(query, limit)
 
     override suspend fun initialize(requiredCount: Int): Result<Unit> {
@@ -135,6 +138,10 @@ class Database @Inject constructor(
     }
 
     override suspend fun getIngredients(limit: Int) = ingredientDao.getSample(limit)
+
+    override suspend fun getIngredients(ids: List<Int>) = ids.mapNotNull {
+        ingredientDao.get(it)
+    }
 
     override suspend fun getTags(limit: Int) = tagDao.getSample(limit)
 
