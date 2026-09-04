@@ -1,7 +1,6 @@
 package com.softcat.foody.screens.recomend
 
 import com.arkivanov.mvikotlin.core.store.Store
-import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 

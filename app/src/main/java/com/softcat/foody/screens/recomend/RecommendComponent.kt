@@ -1,6 +1,5 @@
 package com.softcat.foody.screens.recomend
 
-import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.RecipeTag
 import kotlinx.coroutines.flow.StateFlow
 

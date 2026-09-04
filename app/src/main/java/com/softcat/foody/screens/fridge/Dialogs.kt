@@ -20,12 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.IngredientCategory
-import com.softcat.domain.entities.RecipeTag
 import com.softcat.foody.R
 import com.softcat.foody.common.SearchLine
 import com.softcat.foody.common.SimpleIngredientCard
-import com.softcat.foody.common.SimpleTagCard
-import com.softcat.foody.screens.recomend.RecommendStore
 import com.softcat.foody.ui.theme.FoodyTheme
 
 
