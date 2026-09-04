@@ -119,8 +119,6 @@ class Database @Inject constructor(
 
     override suspend fun searchIngredient(query: String, limit: Int) = ingredientDao.search(query, limit)
 
-    override suspend fun getDefaultAvailableIngredients() = ingredientDao.getDefault()
-
     override suspend fun searchTag(query: String, limit: Int) = tagDao.search(query, limit)
 
     override suspend fun initialize(requiredCount: Int): Result<Unit> {
@@ -141,6 +139,14 @@ class Database @Inject constructor(
     override suspend fun getIngredients(ids: List<Int>) = ids.mapNotNull {
         ingredientDao.get(it)
     }
+
+    override suspend fun getAvailableIngredients() = ingredientDao.getAvailableIngredients()
+
+    override suspend fun addAvailableIngredient(ingredientId: Int) = ingredientDao.setAvailable(ingredientId)
+
+    override suspend fun removeAvailableIngredient(ingredientId: Int) = ingredientDao.setUnavailable(ingredientId)
+
+    override suspend fun resetAvailableIngredients() = ingredientDao.resetAvailableIngredients()
 
     override suspend fun getTags(limit: Int) = tagDao.getSample(limit)
 

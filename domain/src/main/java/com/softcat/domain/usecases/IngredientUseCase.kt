@@ -20,7 +20,7 @@ class IngredientUseCase @Inject constructor(
         return repository.search(query)
     }
 
-    suspend fun getAvailableIngredients(): Flow<List<Ingredient>> {
+    fun getAvailableIngredients(): Flow<List<Ingredient>> {
         Timber.i("${this::class.simpleName} getAvailableIngredients() invoked")
         return repository.getAvailableIngredients()
     }

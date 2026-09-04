@@ -18,5 +18,8 @@ data class IngredientDbModel(
     val category: Int,
 
     @ColumnInfo(name = "isDefaultAvailable")
-    val isDefaultAvailable: Boolean
+    val isDefaultAvailable: Boolean,
+
+    @ColumnInfo(name = "isAvailable")
+    val isAvailable: Boolean
 )

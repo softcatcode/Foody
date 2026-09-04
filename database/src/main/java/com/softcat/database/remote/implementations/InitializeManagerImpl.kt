@@ -51,11 +51,17 @@ class InitializeManagerImpl @Inject constructor(
             }
             downloadFileAndProcess(INGREDIENTS_FILE_URL) { stream ->
                 val ingredients = List(stream.readInt32LE()) {
+                    val id = stream.readInt32LE()
+                    val name = stream.readString()
+                    val category = stream.read()
+                    val isDefaultAvailable = stream.read() == 1
+
                     IngredientDbModel(
-                        id = stream.readInt32LE(),
-                        name = stream.readString(),
-                        category = stream.read(),
-                        isDefaultAvailable = stream.read() == 1,
+                        id = id,
+                        name = name,
+                        category = category,
+                        isDefaultAvailable = isDefaultAvailable,
+                        isAvailable = isDefaultAvailable
                     )
                 }
                 ingredientDao.insertAll(ingredients)

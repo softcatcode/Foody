@@ -8,7 +8,7 @@ interface IngredientRepository {
 
     suspend fun search(query: String): List<Ingredient>
 
-    suspend fun getAvailableIngredients(): Flow<List<Ingredient>>
+    fun getAvailableIngredients(): Flow<List<Ingredient>>
 
     suspend fun addAvailableIngredient(ingredientId: Int)
 

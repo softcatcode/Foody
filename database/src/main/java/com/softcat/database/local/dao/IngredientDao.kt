@@ -38,8 +38,34 @@ interface IngredientDao {
     @Query(
         """
             select * from $INGREDIENTS_TABLE_NAME
-            where isDefaultAvailable
+            where isAvailable
         """
     )
-    suspend fun getDefault(): List<IngredientDbModel>
+    suspend fun getAvailableIngredients(): List<IngredientDbModel>
+
+    @Query(
+        """
+            update $INGREDIENTS_TABLE_NAME
+            set isAvailable = isDefaultAvailable
+        """
+    )
+    suspend fun resetAvailableIngredients()
+
+    @Query(
+        """
+            update $INGREDIENTS_TABLE_NAME
+            set isAvailable = true
+            where id = :id
+        """
+    )
+    suspend fun setAvailable(id: Int)
+
+    @Query(
+        """
+            update $INGREDIENTS_TABLE_NAME
+            set isAvailable = false
+            where id = :id
+        """
+    )
+    suspend fun setUnavailable(id: Int)
 }
