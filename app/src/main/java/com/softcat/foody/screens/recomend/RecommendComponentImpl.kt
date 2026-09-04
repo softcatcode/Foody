@@ -6,7 +6,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
-import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.domain.exceptions.NoScoresException
@@ -60,11 +59,6 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.ChangeMaxAbsentIngredients(newValue))
     }
 
-    override fun addIngredient(ingredient: Ingredient) {
-        Timber.i("${this::class.simpleName}: addIngredient()")
-        store.accept(RecommendStore.Intent.AddIngredient(ingredient))
-    }
-
     override fun removeIngredient(name: String) {
         Timber.i("${this::class.simpleName}: removeIngredient()")
         store.accept(RecommendStore.Intent.RemoveIngredient(name))
@@ -90,11 +84,6 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.ShowAddRequiredTagDialog)
     }
 
-    override fun showAddIngredientDialog() {
-        Timber.i("${this::class.simpleName}: showAddIngredientDialog()")
-        store.accept(RecommendStore.Intent.ShowAddRequiredIngredientDialog)
-    }
-
     override fun hideDialog() {
         Timber.i("${this::class.simpleName}: hideDialog()")
         store.accept(RecommendStore.Intent.HideDialog)
@@ -115,11 +104,6 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.ChangeFavouriteStatus(recipeId))
     }
 
-    override fun searchIngredients(query: String) {
-        Timber.i("${this::class.simpleName}: searchIngredients($query)")
-        store.accept(RecommendStore.Intent.SearchIngredient(query))
-    }
-
     override fun searchTags(query: String) {
         Timber.i("${this::class.simpleName}: searchTags($query)")
         store.accept(RecommendStore.Intent.SearchTag(query))
@@ -128,11 +112,6 @@ class RecommendComponentImpl @AssistedInject constructor(
     override fun changeSearchTagQuery(newValue: String) {
         Timber.i("${this::class.simpleName}: changeSearchTagQuery($newValue)")
         store.accept(RecommendStore.Intent.ChangeSearchTagQuery(newValue))
-    }
-
-    override fun changeSearchIngredientQuery(newValue: String) {
-        Timber.i("${this::class.simpleName}: changeSearchIngredientQuery($newValue)")
-        store.accept(RecommendStore.Intent.ChangeSearchIngredientQuery(newValue))
     }
 
     @AssistedFactory

@@ -18,12 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.softcat.domain.entities.Ingredient
-import com.softcat.domain.entities.IngredientCategory
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.foody.R
 import com.softcat.foody.common.SearchLine
-import com.softcat.foody.common.SimpleIngredientCard
 import com.softcat.foody.common.SimpleTagCard
 import com.softcat.foody.ui.theme.FoodyTheme
 
@@ -88,65 +85,6 @@ fun AddTagsDialog(
 }
 
 @Composable
-fun AddIngredientsDialog(
-    state: RecommendStore.State.SelectIngredientDialogState,
-    onDismiss: () -> Unit,
-    onQueryChange: (String) -> Unit,
-    searchIngredients: (String) -> Unit,
-    addIngredient: (Ingredient) -> Unit
-) {
-    if (state is RecommendStore.State.SelectIngredientDialogState.Shown) {
-        Dialog(
-            onDismissRequest = onDismiss
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 128.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    SearchLine(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.query,
-                        onValueChange = {
-                            onQueryChange(it)
-                            searchIngredients(it)
-                        },
-                        onSearchSubmitted = searchIngredients,
-                        placeholderText = stringResource(R.string.search_ingredient),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    LazyColumn(
-                        modifier = Modifier.heightIn(min = 64.dp, max = 256.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        items(
-                            items = state.searchResult
-                        ) { tag ->
-                            SimpleIngredientCard(
-                                modifier = Modifier,
-                                isActive = true,
-                                name = tag.name,
-                                onClick = { addIngredient(tag) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 @Preview
 private fun AddTagsDialog_Preview() {
     val state = RecommendStore.State.SelectTagDialogState.Shown(
@@ -164,30 +102,6 @@ private fun AddTagsDialog_Preview() {
             onQueryChange = {},
             searchTags = {},
             addTag = {},
-        )
-    }
-}
-
-@Composable
-@Preview
-private fun AddIngredientsDialog_Preview() {
-    val state = RecommendStore.State.SelectIngredientDialogState.Shown(
-        query = "to",
-        searchResult = listOf(
-            Ingredient(
-                id = 1,
-                name = "tomato",
-                IngredientCategory.FruitAndVegetables
-            ),
-        )
-    )
-    FoodyTheme {
-        AddIngredientsDialog(
-            state = state,
-            onDismiss = {},
-            onQueryChange = {},
-            searchIngredients = {},
-            addIngredient = {},
         )
     }
 }

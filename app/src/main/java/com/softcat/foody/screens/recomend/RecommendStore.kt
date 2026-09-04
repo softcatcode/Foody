@@ -7,8 +7,6 @@ import com.softcat.domain.entities.RecipeTag
 
 interface RecommendStore : Store<RecommendStore.Intent, RecommendStore.State, RecommendStore.Label> {
     sealed interface Intent {
-        data class AddIngredient(val elem: Ingredient) : Intent
-
         data class RemoveIngredient(val name: String) : Intent
 
         data class AddTag(val elem: RecipeTag) : Intent
@@ -21,19 +19,13 @@ interface RecommendStore : Store<RecommendStore.Intent, RecommendStore.State, Re
 
         data class OpenRecipeDetails(val id: Int): Intent
 
-        data class SearchIngredient(val query: String): Intent
-
         data class SearchTag(val query: String): Intent
 
         data class ChangeSearchTagQuery(val vewValue: String): Intent
 
-        data class ChangeSearchIngredientQuery(val vewValue: String): Intent
-
         data object Recommend : Intent
 
         data object ShowAddRequiredTagDialog : Intent
-
-        data object ShowAddRequiredIngredientDialog : Intent
 
         data object HideDialog : Intent
     }
@@ -42,19 +34,9 @@ interface RecommendStore : Store<RecommendStore.Intent, RecommendStore.State, Re
         val ingredients: List<String>,
         val tags: List<String>,
         val maxAbsentIngredients: Int,
-        val ingredientDialogState: SelectIngredientDialogState,
         val tagDialogState: SelectTagDialogState,
         val resultStatus: RecommendationStatus,
     ) {
-
-        sealed interface SelectIngredientDialogState {
-            data object Hidden: SelectIngredientDialogState
-
-            data class Shown(
-                val query: String,
-                val searchResult: List<Ingredient>
-            ): SelectIngredientDialogState
-        }
 
         sealed interface SelectTagDialogState {
             data object Hidden: SelectTagDialogState

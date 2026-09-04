@@ -10,7 +10,9 @@ interface IngredientRepository {
 
     suspend fun getAvailableIngredients(): Flow<List<Ingredient>>
 
-    suspend fun setAvailableIngredients(ingredientIds: List<Int>)
+    suspend fun addAvailableIngredient(ingredientId: Int)
+
+    suspend fun removeAvailableIngredient(ingredientId: Int)
 
     suspend fun resetAvailableIngredients()
 }

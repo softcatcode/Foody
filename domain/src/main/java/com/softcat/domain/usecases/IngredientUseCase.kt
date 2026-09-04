@@ -25,9 +25,14 @@ class IngredientUseCase @Inject constructor(
         return repository.getAvailableIngredients()
     }
 
-    suspend fun setAvailableIngredients(ingredients: List<Int>) {
-        Timber.i("${this::class.simpleName} setAvailableIngredients() invoked")
-        repository.setAvailableIngredients(ingredients)
+    suspend fun addAvailableIngredient(ingredientId: Int) {
+        Timber.i("${this::class.simpleName} addAvailableIngredient($ingredientId) invoked")
+        repository.addAvailableIngredient(ingredientId)
+    }
+
+    suspend fun removeAvailableIngredient(ingredientId: Int) {
+        Timber.i("${this::class.simpleName} removeAvailableIngredient($ingredientId) invoked")
+        repository.removeAvailableIngredient(ingredientId)
     }
 
     suspend fun resetAvailableIngredients() {

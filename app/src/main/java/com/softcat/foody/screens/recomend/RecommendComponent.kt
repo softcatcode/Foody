@@ -10,8 +10,6 @@ interface RecommendComponent {
 
     fun changeMaxAbsentIngredients(newValue: Int)
 
-    fun addIngredient(ingredient: Ingredient)
-
     fun removeIngredient(name: String)
 
     fun addTag(tag: RecipeTag)
@@ -22,8 +20,6 @@ interface RecommendComponent {
 
     fun showAddTagDialog()
 
-    fun showAddIngredientDialog()
-
     fun hideDialog()
 
     fun openRecipeDetails(recipeId: Int)
@@ -32,11 +28,7 @@ interface RecommendComponent {
 
     fun changeFavouriteStatus(recipeId: Int)
 
-    fun searchIngredients(query: String)
-
     fun searchTags(query: String)
 
     fun changeSearchTagQuery(newValue: String)
-
-    fun changeSearchIngredientQuery(newValue: String)
 }

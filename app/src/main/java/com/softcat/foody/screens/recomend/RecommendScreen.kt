@@ -69,7 +69,6 @@ private fun IngredientsAndTagsSelection(
     ingredients: List<String>,
     maxAbsentIngredients: Int,
 
-    addIngredientClicked: () -> Unit,
     addTagClicked: () -> Unit,
     removeIngredientClicked: (String) -> Unit,
     removeTagClicked: (String) -> Unit,
@@ -85,7 +84,6 @@ private fun IngredientsAndTagsSelection(
         ElementsScrollableFlow(
             modifier = Modifier.heightIn(max = maxHeight),
             elements = ingredients,
-            addElementClicked = addIngredientClicked,
             removeElementClicked = removeIngredientClicked,
             color = MaterialTheme.colorScheme.primary,
             title = stringResource(R.string.ingredients),
@@ -395,7 +393,6 @@ fun RecommendScreen(component: RecommendComponent) {
         removeTag = component::removeTag,
         removeIngredient = component::removeIngredient,
         showAddTagDialog = component::showAddTagDialog,
-        showAddIngredientDialog = component::showAddIngredientDialog,
         changeMaxAbsentIngredients = component::changeMaxAbsentIngredients,
         openRecipeDetails = component::openRecipeDetails,
         onOpenFridgeClicked = component::openFridge,
@@ -406,13 +403,6 @@ fun RecommendScreen(component: RecommendComponent) {
         onQueryChange = component::changeSearchTagQuery,
         searchTags = component::searchTags,
         addTag = component::addTag,
-    )
-    AddIngredientsDialog(
-        state = state.ingredientDialogState,
-        onDismiss = component::hideDialog,
-        onQueryChange = component::changeSearchIngredientQuery,
-        searchIngredients = component::searchIngredients,
-        addIngredient = component::addIngredient
     )
 }
 
@@ -425,7 +415,6 @@ fun RecommendContent(
     removeTag: (String) -> Unit,
     removeIngredient: (String) -> Unit,
     showAddTagDialog: () -> Unit,
-    showAddIngredientDialog: () -> Unit,
     changeMaxAbsentIngredients: (Int) -> Unit,
     onOpenFridgeClicked: () -> Unit
 ) {
@@ -445,7 +434,6 @@ fun RecommendContent(
             Spacer(Modifier.height(4.dp))
             IngredientsAndTagsSelection(
                 modifier = Modifier.wrapContentHeight(),
-                addIngredientClicked = showAddIngredientDialog,
                 addTagClicked = showAddTagDialog,
                 removeIngredientClicked = removeIngredient,
                 removeTagClicked = removeTag,
@@ -519,7 +507,6 @@ private fun Recommendations_Preview() {
         ingredients = listOf("fish", "pork", "tomato", "butter", "egg"),
         tags = listOf("breakfast", "15-minutes-or-less"),
         maxAbsentIngredients = 1,
-        ingredientDialogState = RecommendStore.State.SelectIngredientDialogState.Hidden,
         tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden,
         resultStatus = RecommendationStatus.Content(
             recipes = listOf(
@@ -542,7 +529,6 @@ private fun Recommendations_Preview() {
             removeTag = {},
             removeIngredient = {},
             showAddTagDialog = {},
-            showAddIngredientDialog = {},
             changeMaxAbsentIngredients = {},
             onOpenFridgeClicked = {},
         )
