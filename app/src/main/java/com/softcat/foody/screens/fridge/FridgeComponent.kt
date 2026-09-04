@@ -19,4 +19,12 @@ interface FridgeComponent {
     fun back()
 
     fun removeIngredient(name: String)
+
+    fun showDialog()
+    fun hideDialog()
+
+    fun addIngredient(name: String)
+
+    fun changeSearchQuery(query: String)
+    fun searchIngredient(query: String)
 }

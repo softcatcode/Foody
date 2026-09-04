@@ -32,9 +32,14 @@ interface FridgeStore: Store<FridgeStore.Intent, FridgeStore.State, Nothing> {
     }
 
     sealed interface Intent {
-        data object Reset: Intent
-        data object AddIngredientClick: Intent
+        data object Reset : Intent
+        data object AddIngredientClick : Intent
+        data object HideDialog : Intent
+        data object ShowDialog : Intent
 
-        data class RemoveIngredient(val name: String): Intent
+        data class RemoveIngredient(val name: String) : Intent
+        data class ChangeSearchQuery(val query: String) : Intent
+        data class SearchIngredient(val query: String) : Intent
+        data class AddIngredient(val name: String) : Intent
     }
 }

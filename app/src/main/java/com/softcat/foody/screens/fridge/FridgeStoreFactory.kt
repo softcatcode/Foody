@@ -49,6 +49,8 @@ class FridgeStoreFactory @Inject constructor(
 
     private sealed interface Msg {
         data class AvailableIngredientsUpdate(val ingredients: List<Ingredient>): Msg
+        data class ChangeSearchQuery(val query: String): Msg
+        data class SearchResult(val ingredients: List<Ingredient>): Msg
 
         data object ShowDialog: Msg
         data object HideDialog: Msg
@@ -72,13 +74,27 @@ class FridgeStoreFactory @Inject constructor(
                         searchResult = emptyList()
                     )
                 )
+
+                is Msg.ChangeSearchQuery -> {
+                    if (dialogState is FridgeStore.State.SelectIngredientDialogState.Shown) {
+                        copy(dialogState = dialogState.copy(query = msg.query))
+                    } else
+                        this
+                }
+
+                is Msg.SearchResult -> {
+                    if (dialogState is FridgeStore.State.SelectIngredientDialogState.Shown) {
+                        copy(dialogState = dialogState.copy(searchResult = msg.ingredients))
+                    } else
+                        this
+                }
             }
         }
     }
 
     private inner class FridgeExecutor: CoroutineExecutor<FridgeStore.Intent, Action, FridgeStore.State, Msg, Nothing>() {
 
-        private var cachedIngredients: MutableList<Ingredient>? = null
+        private var cachedIngredients: List<Ingredient>? = null
 
         override fun executeAction(action: Action) {
             Timber.i("${this::class.simpleName}.executeAction($action)")
@@ -96,19 +112,38 @@ class FridgeStoreFactory @Inject constructor(
                 FridgeStore.Intent.AddIngredientClick -> dispatch(Msg.ShowDialog)
                 is FridgeStore.Intent.RemoveIngredient -> removeIngredient(intent.name)
                 FridgeStore.Intent.Reset -> resetIngredients()
+                is FridgeStore.Intent.AddIngredient -> addIngredient(intent.name)
+                is FridgeStore.Intent.ChangeSearchQuery -> dispatch(Msg.ChangeSearchQuery(intent.query))
+                is FridgeStore.Intent.SearchIngredient -> searchIngredient(intent.query)
+                FridgeStore.Intent.HideDialog -> dispatch(Msg.HideDialog)
+                FridgeStore.Intent.ShowDialog -> dispatch(Msg.ShowDialog)
+            }
+        }
+
+        private fun searchIngredient(query: String) {
+            scope.launch(Dispatchers.IO) {
+                val result = ingredientUseCase.search(query)
+                withContext(Dispatchers.Main) {
+                    dispatch(Msg.SearchResult(result))
+                }
+            }
+        }
+
+        private fun addIngredient(name: String) {
+            val dialogState = (
+                state().dialogState as? FridgeStore.State.SelectIngredientDialogState.Shown
+            ) ?: return
+            val ingredient = dialogState.searchResult.find { it.name == name } ?: return
+
+            scope.launch(Dispatchers.IO) {
+                ingredientUseCase.addAvailableIngredient(ingredient.id)
             }
         }
 
         private fun removeIngredient(name: String) {
-            cachedIngredients?.let { ingredients ->
-                val ids = ingredients
-                    .asSequence()
-                    .filter { it.name != name }
-                    .map { it.id }
-                    .toList()
-                scope.launch(Dispatchers.IO) {
-                    ingredientUseCase.setAvailableIngredients(ids)
-                }
+            val ingredient = cachedIngredients?.find { it.name == name } ?: return
+            scope.launch(Dispatchers.IO) {
+                ingredientUseCase.removeAvailableIngredient(ingredient.id)
             }
         }
 

@@ -56,6 +56,31 @@ class FridgeComponentImpl @AssistedInject constructor(
         store.accept(Intent.RemoveIngredient(name))
     }
 
+    override fun showDialog() {
+        Timber.i("${this::class.simpleName}: showDialog()")
+        store.accept(Intent.ShowDialog)
+    }
+
+    override fun hideDialog() {
+        Timber.i("${this::class.simpleName}: hideDialog()")
+        store.accept(Intent.HideDialog)
+    }
+
+    override fun addIngredient(name: String) {
+        Timber.i("${this::class.simpleName}: addIngredient($name)")
+        store.accept(Intent.AddIngredient(name))
+    }
+
+    override fun changeSearchQuery(query: String) {
+        Timber.i("${this::class.simpleName}: changeSearchQuery($query)")
+        store.accept(Intent.ChangeSearchQuery(query))
+    }
+
+    override fun searchIngredient(query: String) {
+        Timber.i("${this::class.simpleName}: searchIngredient($query)")
+        store.accept(Intent.SearchIngredient(query))
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

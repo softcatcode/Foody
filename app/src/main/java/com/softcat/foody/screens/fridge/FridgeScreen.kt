@@ -1,9 +1,10 @@
 package com.softcat.foody.screens.fridge
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -40,6 +41,13 @@ fun FridgeScreen(component: FridgeComponent) {
         onResetClicked = component::resetIngredients,
         onBackClicked = component::back,
     )
+    AddIngredientsDialog(
+        state = state.dialogState,
+        onDismiss = component::hideDialog,
+        onQueryChange = component::changeSearchQuery,
+        searchIngredients = component::searchIngredient,
+        addIngredient = component::addIngredient
+    )
 }
 
 @Composable
@@ -70,14 +78,13 @@ private fun FridgeContent(
             modifier = Modifier
                 .padding(top = paddingValues.calculateTopPadding())
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp)
                 .fillMaxSize()
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(Modifier.height(16.dp))
             state.categories.forEach { model ->
                 IngredientCategoryCard(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     titleResId = model.titleResId,
                     iconResId = model.iconResId,
                     color = model.color,
