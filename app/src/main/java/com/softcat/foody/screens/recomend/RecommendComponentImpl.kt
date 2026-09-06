@@ -28,7 +28,7 @@ class RecommendComponentImpl @AssistedInject constructor(
     @Assisted("open_fridge") private val openFridgeCallback: () -> Unit,
 ): RecommendComponent, ComponentContext by componentContext {
 
-    private val store = instanceKeeper.getStore { storeFactory.create(componentContext.lifecycle) }
+    private val store = instanceKeeper.getStore { storeFactory.create() }
     private val scope = CoroutineScope(Dispatchers.Main)
 
     @OptIn(ExperimentalCoroutinesApi::class)

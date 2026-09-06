@@ -1,8 +1,5 @@
 package com.softcat.foody.screens.recomend
 
-import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.doOnStart
-import com.arkivanov.essenty.lifecycle.doOnStop
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -37,7 +34,11 @@ class RecommendStoreFactory
         private val ingredientUseCase: IngredientUseCase,
         private val tagUseCase: RecipeTagUseCase,
     ) {
-        fun create(lifecycle: Lifecycle): RecommendStore =
+
+        private var currentUser: User? = null
+
+
+        fun create(): RecommendStore =
             object :
                 RecommendStore,
                 Store<RecommendStore.Intent, RecommendStore.State, RecommendStore.Label>
@@ -52,12 +53,15 @@ class RecommendStoreFactory
                             resultStatus = RecommendStore.State.RecommendationStatus.Initial,
                             tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden,
                         ),
-                    executorFactory = { RecommendationsExecutor(lifecycle) },
+                    executorFactory = { RecommendationsExecutor() },
                     reducer = RecommendReducer,
                     bootstrapper = RecommendBootstrapper()
                 ) {}
 
     private inner class RecommendBootstrapper: CoroutineBootstrapper<Action>() {
+
+        private var favouritesCollectingJob: Job? = null
+
         override fun invoke() {
             scope.launch(Dispatchers.IO) {
                 ingredientUseCase.getAvailableIngredients().collect { ingredients ->
@@ -66,11 +70,33 @@ class RecommendStoreFactory
                     }
                 }
             }
+            scope.launch {
+                userUseCase.observeLastEnteredUser().collect(::lastEnteredUserCollector)
+            }
+        }
+
+        private fun lastEnteredUserCollector(newUser: User?) {
+            currentUser = newUser
+            favouritesCollectingJob?.cancel()
+            val userId = newUser?.id
+
+            favouritesCollectingJob = if (userId == null) {
+                null
+            } else {
+                scope.launch(Dispatchers.IO) {
+                    favouritesUseCase.observeFavouriteIds(userId).collect {
+                        withContext(Dispatchers.Main) {
+                            dispatch(Action.UpdateFavourites(it))
+                        }
+                    }
+                }
+            }
         }
     }
 
     sealed interface Action {
         data class IngredientsUpdate(val ingredients: List<Ingredient>): Action
+        data class UpdateFavourites(val favouriteIds: Set<Int>): Action
     }
 
     sealed interface Msg {
@@ -91,32 +117,13 @@ class RecommendStoreFactory
         data class RecommendationReady(val recipes: List<RecipeRecommendationModel>) : Msg
     }
 
-    private inner class RecommendationsExecutor(
-        lifecycle: Lifecycle
-    ): CoroutineExecutor<RecommendStore.Intent, Action, RecommendStore.State, Msg, RecommendStore.Label>() {
-        private var currentUser: User? = null
+    private inner class RecommendationsExecutor:
+        CoroutineExecutor<RecommendStore.Intent, Action, RecommendStore.State, Msg, RecommendStore.Label>() {
+
         private var recommendation = emptyList<Recipe>()
         private var favouriteRecipesIds: Set<Int>? = null
         private val selectedTags = mutableListOf<RecipeTag>()
         private var selectedIngredients = listOf<Ingredient>()
-
-        private var userCollectingJob: Job? = null
-        private var favouritesCollectingJob: Job? = null
-
-        init {
-            lifecycle.doOnStart {
-                userCollectingJob = scope.launch {
-                    userUseCase.observeLastEnteredUser().collect(::lastEnteredUserCollector)
-                }
-            }
-            lifecycle.doOnStop {
-                favouritesCollectingJob?.cancel()
-                userCollectingJob?.cancel()
-
-                favouritesCollectingJob = null
-                userCollectingJob = null
-            }
-        }
 
         override fun executeAction(action: Action) {
             Timber.i("${this::class.simpleName}: Action is obtained: $action")
@@ -126,6 +133,8 @@ class RecommendStoreFactory
                     val ingredientNames = selectedIngredients.map { it.name }
                     dispatch(Msg.IngredientsUpdate(ingredientNames))
                 }
+
+                is Action.UpdateFavourites -> updateFavourites(action.favouriteIds)
             }
         }
 
@@ -165,24 +174,6 @@ class RecommendStoreFactory
                 RecommendStore.Intent.ShowAddRequiredTagDialog -> dispatch(Msg.ShowAddRequiredTagDialog)
                 RecommendStore.Intent.HideDialog -> dispatch(Msg.HideDialog)
                 is RecommendStore.Intent.ChangeMaxAbsentIngredients -> dispatch(Msg.ChangeMaxAbsentIngredients(intent.newValue))
-            }
-        }
-
-        private fun lastEnteredUserCollector(newUser: User?) {
-            currentUser = newUser
-            favouritesCollectingJob?.cancel()
-            val userId = newUser?.id
-
-            favouritesCollectingJob = if (userId == null) {
-                null
-            } else {
-                scope.launch(Dispatchers.IO) {
-                    favouritesUseCase.observeFavouriteIds(userId).collect {
-                        withContext(Dispatchers.Main) {
-                            updateFavourites(it)
-                        }
-                    }
-                }
             }
         }
 
