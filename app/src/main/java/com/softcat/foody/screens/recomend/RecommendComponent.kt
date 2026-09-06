@@ -1,16 +1,13 @@
 package com.softcat.foody.screens.recomend
 
-import com.softcat.domain.entities.Ingredient
+import com.arkivanov.decompose.value.Value
 import com.softcat.domain.entities.RecipeTag
-import kotlinx.coroutines.flow.StateFlow
 
 interface RecommendComponent {
 
-    val model: StateFlow<RecommendStore.State>
+    val model: Value<RecommendStore.State>
 
     fun changeMaxAbsentIngredients(newValue: Int)
-
-    fun addIngredient(ingredient: Ingredient)
 
     fun removeIngredient(name: String)
 
@@ -22,19 +19,15 @@ interface RecommendComponent {
 
     fun showAddTagDialog()
 
-    fun showAddIngredientDialog()
-
     fun hideDialog()
 
     fun openRecipeDetails(recipeId: Int)
 
-    fun changeFavouriteStatus(recipeId: Int)
+    fun openFridge()
 
-    fun searchIngredients(query: String)
+    fun changeFavouriteStatus(recipeId: Int)
 
     fun searchTags(query: String)
 
     fun changeSearchTagQuery(newValue: String)
-
-    fun changeSearchIngredientQuery(newValue: String)
 }

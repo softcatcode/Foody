@@ -1,6 +1,7 @@
 package com.softcat.foody.di
 
 import android.content.Context
+import com.softcat.data.di.ApplicationScope
 import com.softcat.data.implementations.AvatarRepositoryImpl
 import com.softcat.data.implementations.FavouritesRepositoryImpl
 import com.softcat.data.implementations.IngredientRepositoryImpl
@@ -23,27 +24,35 @@ import dagger.Provides
 
 @Module
 interface RepositoryModule {
+    @ApplicationScope
     @Binds
     fun bindAvatarRepository(impl: AvatarRepositoryImpl): AvatarRepository
 
+    @ApplicationScope
     @Binds
     fun bindFavouritesRepository(impl: FavouritesRepositoryImpl): FavouritesRepository
 
+    @ApplicationScope
     @Binds
     fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
 
+    @ApplicationScope
     @Binds
     fun bindScoreRepository(impl: ScoreRepositoryImpl): ScoreRepository
 
+    @ApplicationScope
     @Binds
     fun bindRecipeRepository(impl: RecipeRepositoryImpl): RecipeRepository
 
+    @ApplicationScope
     @Binds
     fun bindInitializeRepository(impl: InitializeRepositoryImpl): InitializeRepository
 
+    @ApplicationScope
     @Binds
     fun bindRecipeTagRepository(impl: RecipeTagRepositoryImpl): RecipeTagRepository
 
+    @ApplicationScope
     @Binds
     fun bindIngredientRepository(impl: IngredientRepositoryImpl): IngredientRepository
 

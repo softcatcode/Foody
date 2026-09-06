@@ -1,20 +1,20 @@
 package com.softcat.foody.common
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,17 +30,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.softcat.foody.R
-import com.softcat.foody.ui.theme.LightGray
 
 @Composable
 @Preview(showBackground = true)
@@ -48,16 +53,10 @@ fun NavigationBar(
     selectedIndex: Int = 0,
     onIndexSelected: (Int) -> Unit = {}
 ) {
-    val shadow = Brush.linearGradient(
-        colors = listOf(LightGray, White),
-        start = Offset(0f, Float.POSITIVE_INFINITY),
-        end = Offset(0f, 0f)
-    )
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .background(shadow)
-            .offset(y = 16.dp),
+            .shadow(),
         contentPadding = PaddingValues(0.dp),
     ) {
         Card(
@@ -100,6 +99,32 @@ fun NavigationBar(
                 }
             }
         }
+    }
+}
+
+private fun Modifier.shadow(
+    color: Color = Black.copy(alpha = 0.15f),
+    blur: Dp = 6.dp,
+    offsetX: Dp = 0.dp,
+    offsetY: Dp = 0.dp
+) = drawBehind {
+    drawIntoCanvas { canvas ->
+        val paint = Paint().asFrameworkPaint().apply {
+            this.color = Color.Transparent.toArgb()
+            setShadowLayer(
+                blur.toPx(),
+                offsetX.toPx(),
+                offsetY.toPx(),
+                color.toArgb()
+            )
+        }
+        canvas.nativeCanvas.drawRect(
+            0f,
+            0f,
+            size.width,
+            size.height,
+            paint
+        )
     }
 }
 
@@ -232,6 +257,65 @@ fun DetailsTopBar(
                     isFavourite = isFavourite,
                     onClick = onChangeFavouriteStatus
                 )
+            }
+        },
+        navigationIcon = {
+            IconButton(onBackClicked) {
+                Icon(
+                    modifier = Modifier.size(32.dp),
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.background
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun FridgeTopBar(
+    onCartClicked: () -> Unit = {},
+    onResetClicked: () -> Unit = {},
+    onBackClicked: () -> Unit = {}
+) {
+    TopAppBar(
+        modifier = Modifier.height(64.dp),
+        expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
+        windowInsets = TopAppBarDefaults.windowInsets
+            .only(WindowInsetsSides.Horizontal),
+        title = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.fridge_title),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineSmall,
+                color = White
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors().copy(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        actions = {
+            Row {
+                IconButton(onResetClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.reset),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = White
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
+                IconButton(onCartClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.cart),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = White
+                    )
+                }
             }
         },
         navigationIcon = {

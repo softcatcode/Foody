@@ -1,11 +1,9 @@
 package com.softcat.foody.screens.recomend
 
-import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.doOnStart
-import com.arkivanov.essenty.lifecycle.doOnStop
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
@@ -36,10 +34,15 @@ class RecommendStoreFactory
         private val ingredientUseCase: IngredientUseCase,
         private val tagUseCase: RecipeTagUseCase,
     ) {
-        fun create(lifecycle: Lifecycle): RecommendStore =
+
+        private var currentUser: User? = null
+
+
+        fun create(): RecommendStore =
             object :
                 RecommendStore,
-                Store<RecommendStore.Intent, RecommendStore.State, RecommendStore.Label> by
+                Store<RecommendStore.Intent, RecommendStore.State, RecommendStore.Label>
+            by
                 storeFactory.create(
                     name = this::class.simpleName,
                     initialState =
@@ -48,109 +51,27 @@ class RecommendStoreFactory
                             tags = emptyList(),
                             maxAbsentIngredients = 0,
                             resultStatus = RecommendStore.State.RecommendationStatus.Initial,
-                            ingredientDialogState = RecommendStore.State.SelectIngredientDialogState.Hidden,
                             tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden,
                         ),
-                    executorFactory = { RecommendationsExecutor(lifecycle) },
+                    executorFactory = { RecommendationsExecutor() },
                     reducer = RecommendReducer,
+                    bootstrapper = RecommendBootstrapper()
                 ) {}
 
-        sealed interface Msg {
-            data class AddIngredient(val elem: Ingredient) : Msg
-            data class RemoveIngredient(val name: String) : Msg
-            data class AddTag(val elem: RecipeTag) : Msg
-            data class RemoveTag(val name: String) : Msg
-            data class ChangeMaxAbsentIngredients(val newValue: Int) : Msg
-            data class ChangeSearchIngredientQuery(val newValue: String) : Msg
-            data class ChangeSearchTagQuery(val newValue: String) : Msg
-            data object RecommendationLoading : Msg
-            data object ShowAddRequiredIngredientDialog : Msg
-            data object ShowAddRequiredTagDialog : Msg
-            data object HideDialog : Msg
-            data object Reset: Msg
+    private inner class RecommendBootstrapper: CoroutineBootstrapper<Action>() {
 
-            data class SearchIngredientResult(
-                val query: String,
-                val ingredients: List<Ingredient>
-            ): Msg
-
-            data class SearchTagResult(
-                val query: String,
-                val tags: List<RecipeTag>
-            ): Msg
-
-            data class RecommendationReady(val recipes: List<RecipeRecommendationModel>) : Msg
-        }
-
-    private inner class RecommendationsExecutor(
-        lifecycle: Lifecycle
-    ): CoroutineExecutor<RecommendStore.Intent, Nothing, RecommendStore.State, Msg, RecommendStore.Label>() {
-        private var currentUser: User? = null
-        private var recommendation = emptyList<Recipe>()
-        private var favouriteRecipesIds: Set<Int>? = null
-        private val selectedIngredients = mutableListOf<Ingredient>()
-        private val selectedTags = mutableListOf<RecipeTag>()
-
-        private var userCollectingJob: Job? = null
         private var favouritesCollectingJob: Job? = null
 
-        init {
-            lifecycle.doOnStart {
-                userCollectingJob = scope.launch {
-                    userUseCase.observeLastEnteredUser().collect(::lastEnteredUserCollector)
-                }
-            }
-            lifecycle.doOnStop {
-                favouritesCollectingJob?.cancel()
-                userCollectingJob?.cancel()
-
-                favouritesCollectingJob = null
-                userCollectingJob = null
-            }
-        }
-
-        override fun executeIntent(intent: RecommendStore.Intent) {
-            Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
-            when (intent) {
-                is RecommendStore.Intent.AddIngredient -> {
-                    if (intent.elem !in selectedIngredients) {
-                        selectedIngredients.add(intent.elem)
-                        dispatch(Msg.AddIngredient(intent.elem))
+        override fun invoke() {
+            scope.launch(Dispatchers.IO) {
+                ingredientUseCase.getAvailableIngredients().collect { ingredients ->
+                    withContext(Dispatchers.Main) {
+                        dispatch(Action.IngredientsUpdate(ingredients))
                     }
                 }
-
-                is RecommendStore.Intent.AddTag -> {
-                    if (intent.elem !in selectedTags) {
-                        selectedTags.add(intent.elem)
-                        dispatch(Msg.AddTag(intent.elem))
-                    }
-                }
-
-                is RecommendStore.Intent.RemoveIngredient -> {
-                    selectedIngredients.removeIf { it.name == intent.name }
-                    dispatch(Msg.RemoveIngredient(intent.name))
-                }
-
-                is RecommendStore.Intent.RemoveTag -> {
-                    selectedTags.removeIf { it.name == intent.name }
-                    dispatch(Msg.RemoveTag(intent.name))
-                }
-
-                is RecommendStore.Intent.OpenRecipeDetails -> {
-                    val recipe = recommendation.find { it.id == intent.id } ?: return
-                    publish(RecommendStore.Label.OpenRecipeDetails(recipe))
-                }
-
-                is RecommendStore.Intent.ChangeSearchIngredientQuery -> dispatch(Msg.ChangeSearchIngredientQuery(intent.vewValue))
-                is RecommendStore.Intent.ChangeSearchTagQuery -> dispatch(Msg.ChangeSearchTagQuery(intent.vewValue))
-                is RecommendStore.Intent.SearchIngredient -> searchIngredient(intent.query)
-                is RecommendStore.Intent.SearchTag -> searchTag(intent.query)
-                is RecommendStore.Intent.ChangeFavouriteStatus -> changeFavouriteStatus(intent.recipeId)
-                RecommendStore.Intent.Recommend -> makeRecipesRecommendation()
-                RecommendStore.Intent.ShowAddRequiredIngredientDialog -> dispatch(Msg.ShowAddRequiredIngredientDialog)
-                RecommendStore.Intent.ShowAddRequiredTagDialog -> dispatch(Msg.ShowAddRequiredTagDialog)
-                RecommendStore.Intent.HideDialog -> dispatch(Msg.HideDialog)
-                is RecommendStore.Intent.ChangeMaxAbsentIngredients -> dispatch(Msg.ChangeMaxAbsentIngredients(intent.newValue))
+            }
+            scope.launch {
+                userUseCase.observeLastEnteredUser().collect(::lastEnteredUserCollector)
             }
         }
 
@@ -165,10 +86,94 @@ class RecommendStoreFactory
                 scope.launch(Dispatchers.IO) {
                     favouritesUseCase.observeFavouriteIds(userId).collect {
                         withContext(Dispatchers.Main) {
-                            updateFavourites(it)
+                            dispatch(Action.UpdateFavourites(it))
                         }
                     }
                 }
+            }
+        }
+    }
+
+    sealed interface Action {
+        data class IngredientsUpdate(val ingredients: List<Ingredient>): Action
+        data class UpdateFavourites(val favouriteIds: Set<Int>): Action
+    }
+
+    sealed interface Msg {
+        data class IngredientsUpdate(val ingredients: List<String>) : Msg
+        data class TagsUpdate(val tags: List<String>) : Msg
+        data class ChangeMaxAbsentIngredients(val newValue: Int) : Msg
+        data class ChangeSearchTagQuery(val newValue: String) : Msg
+        data object RecommendationLoading : Msg
+        data object ShowAddRequiredTagDialog : Msg
+        data object HideDialog : Msg
+        data object Reset: Msg
+
+        data class SearchTagResult(
+            val query: String,
+            val tags: List<RecipeTag>
+        ): Msg
+
+        data class RecommendationReady(val recipes: List<RecipeRecommendationModel>) : Msg
+    }
+
+    private inner class RecommendationsExecutor:
+        CoroutineExecutor<RecommendStore.Intent, Action, RecommendStore.State, Msg, RecommendStore.Label>() {
+
+        private var recommendation = emptyList<Recipe>()
+        private var favouriteRecipesIds: Set<Int>? = null
+        private val selectedTags = mutableListOf<RecipeTag>()
+        private var selectedIngredients = listOf<Ingredient>()
+
+        override fun executeAction(action: Action) {
+            Timber.i("${this::class.simpleName}: Action is obtained: $action")
+            when (action) {
+                is Action.IngredientsUpdate -> {
+                    selectedIngredients = action.ingredients
+                    val ingredientNames = selectedIngredients.map { it.name }
+                    dispatch(Msg.IngredientsUpdate(ingredientNames))
+                }
+
+                is Action.UpdateFavourites -> updateFavourites(action.favouriteIds)
+            }
+        }
+
+        override fun executeIntent(intent: RecommendStore.Intent) {
+            Timber.i("${this::class.simpleName}: Intent is obtained: $intent")
+            when (intent) {
+                is RecommendStore.Intent.AddTag -> {
+                    if (intent.elem !in selectedTags) {
+                        selectedTags.add(intent.elem)
+                        val tags = selectedTags.map { it.name }
+                        dispatch(Msg.TagsUpdate(tags))
+                    }
+                }
+
+                is RecommendStore.Intent.RemoveIngredient -> {
+                    val id = selectedIngredients.find { it.name == intent.name }?.id ?: return
+                    scope.launch(Dispatchers.IO) {
+                        ingredientUseCase.removeAvailableIngredient(id)
+                    }
+                }
+
+                is RecommendStore.Intent.RemoveTag -> {
+                    selectedTags.removeIf { it.name == intent.name }
+                    val tags = selectedTags.map { it.name }
+                    dispatch(Msg.TagsUpdate(tags))
+                }
+
+                is RecommendStore.Intent.OpenRecipeDetails -> {
+                    val recipe = recommendation.find { it.id == intent.id } ?: return
+                    publish(RecommendStore.Label.OpenRecipeDetails(recipe))
+                }
+
+                is RecommendStore.Intent.ChangeSearchTagQuery -> dispatch(Msg.ChangeSearchTagQuery(intent.vewValue))
+                is RecommendStore.Intent.SearchTag -> searchTag(intent.query)
+                is RecommendStore.Intent.ChangeFavouriteStatus -> changeFavouriteStatus(intent.recipeId)
+                RecommendStore.Intent.Recommend -> makeRecipesRecommendation()
+                RecommendStore.Intent.ShowAddRequiredTagDialog -> dispatch(Msg.ShowAddRequiredTagDialog)
+                RecommendStore.Intent.HideDialog -> dispatch(Msg.HideDialog)
+                is RecommendStore.Intent.ChangeMaxAbsentIngredients -> dispatch(Msg.ChangeMaxAbsentIngredients(intent.newValue))
             }
         }
 
@@ -220,15 +225,6 @@ class RecommendStoreFactory
             }
         }
 
-        private fun searchIngredient(query: String) {
-            scope.launch(Dispatchers.IO) {
-                val result = ingredientUseCase.search(query)
-                withContext(Dispatchers.Main) {
-                    dispatch(Msg.SearchIngredientResult(query, result))
-                }
-            }
-        }
-
         private fun searchTag(query: String) {
             scope.launch(Dispatchers.IO) {
                 val result = tagUseCase.search(query)
@@ -256,77 +252,27 @@ class RecommendStoreFactory
             override fun RecommendStore.State.reduce(msg: Msg): RecommendStore.State {
                 Timber.i("${this::class.simpleName}: Message is obtained: $msg")
                 return when (msg) {
-                    Msg.Reset -> {
-                        copy(resultStatus = RecommendStore.State.RecommendationStatus.Initial)
-                    }
+                    is Msg.ChangeMaxAbsentIngredients -> copy(maxAbsentIngredients = msg.newValue)
+                    is Msg.RecommendationReady -> copy(resultStatus = RecommendStore.State.RecommendationStatus.Content(msg.recipes))
+                    is Msg.IngredientsUpdate -> copy(ingredients = msg.ingredients)
+                    is Msg.TagsUpdate -> copy(tags = msg.tags)
+                    Msg.RecommendationLoading -> copy(resultStatus = RecommendStore.State.RecommendationStatus.Loading)
+                    Msg.HideDialog -> copy(tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden)
+                    Msg.Reset -> copy(resultStatus = RecommendStore.State.RecommendationStatus.Initial)
 
-                    is Msg.AddIngredient -> {
-                        copy(ingredients = ingredients.toMutableList().apply { add(msg.elem.name) })
-                    }
-
-                    is Msg.AddTag -> {
-                        copy(tags = tags.toMutableList().apply { add(msg.elem.name) })
-                    }
-
-                    is Msg.ChangeMaxAbsentIngredients -> {
-                        copy(maxAbsentIngredients = msg.newValue)
-                    }
-
-                    Msg.RecommendationLoading -> {
-                        copy(resultStatus = RecommendStore.State.RecommendationStatus.Loading)
-                    }
-
-                    is Msg.RecommendationReady -> {
-                        copy(resultStatus = RecommendStore.State.RecommendationStatus.Content(msg.recipes))
-                    }
-
-                    is Msg.RemoveIngredient -> {
-                        val newValue = ingredients
-                            .toMutableList()
-                            .apply { removeIf { it == msg.name } }
-                        copy(ingredients = newValue)
-                    }
-
-                    is Msg.RemoveTag -> {
-                        val newValue = tags
-                            .toMutableList()
-                            .apply { removeIf { it == msg.name } }
-                        copy(tags = newValue)
-                    }
-
-                    Msg.ShowAddRequiredIngredientDialog -> {
-                        val state = RecommendStore.State.SelectIngredientDialogState.Shown(
+                    Msg.ShowAddRequiredTagDialog -> copy(
+                        tagDialogState = RecommendStore.State.SelectTagDialogState.Shown(
                             query = "",
                             searchResult = emptyList()
                         )
-                        copy(ingredientDialogState = state)
-                    }
+                    )
 
-                    Msg.ShowAddRequiredTagDialog -> {
-                        val state = RecommendStore.State.SelectTagDialogState.Shown(
-                            query = "",
-                            searchResult = emptyList()
+                    is Msg.SearchTagResult -> copy(
+                        tagDialogState = RecommendStore.State.SelectTagDialogState.Shown(
+                            query = msg.query,
+                            searchResult = msg.tags
                         )
-                        copy(tagDialogState = state)
-                    }
-
-                    Msg.HideDialog -> {
-                        copy(
-                            ingredientDialogState = RecommendStore.State.SelectIngredientDialogState.Hidden,
-                            tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden
-                        )
-                    }
-
-                    is Msg.ChangeSearchIngredientQuery -> {
-                        if (ingredientDialogState is RecommendStore.State.SelectIngredientDialogState.Shown) {
-                            copy(
-                                ingredientDialogState = ingredientDialogState.copy(
-                                    query = msg.newValue
-                                )
-                            )
-                        } else
-                            this
-                    }
+                    )
 
                     is Msg.ChangeSearchTagQuery -> {
                         if (tagDialogState is RecommendStore.State.SelectTagDialogState.Shown) {
@@ -337,24 +283,6 @@ class RecommendStoreFactory
                             )
                         } else
                             this
-                    }
-
-                    is Msg.SearchTagResult -> {
-                        copy(
-                            tagDialogState = RecommendStore.State.SelectTagDialogState.Shown(
-                                query = msg.query,
-                                searchResult = msg.tags
-                            )
-                        )
-                    }
-
-                    is Msg.SearchIngredientResult -> {
-                        copy(
-                            ingredientDialogState = RecommendStore.State.SelectIngredientDialogState.Shown(
-                                query = msg.query,
-                                searchResult = msg.ingredients
-                            )
-                        )
                     }
                 }
             }

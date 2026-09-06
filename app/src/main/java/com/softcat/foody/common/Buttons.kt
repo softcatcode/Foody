@@ -13,14 +13,17 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -96,31 +99,36 @@ fun AddElementButton(
     color: Color = MaterialTheme.colorScheme.primary,
     iconId: Int = R.drawable.plus
 ) {
-    OutlinedCard(
-        modifier = modifier,
-        onClick = onClick,
-        border = BorderStroke(2.dp, color),
-        shape = RoundedCornerShape(5.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 32.dp) {
+        Card(
+            modifier = modifier,
+            onClick = onClick,
+            border = BorderStroke(2.dp, color),
+            shape = RoundedCornerShape(5.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background
+            )
         ) {
-            Text(
-                text = stringResource(R.string.add),
-                color = color,
-                style = MaterialTheme.typography.labelMedium
-            )
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                modifier = Modifier.size(16.dp),
-                painter = painterResource(iconId),
-                contentDescription = null,
-                tint = color
-            )
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(MaterialTheme.colorScheme.background),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(
+                    text = stringResource(R.string.add),
+                    color = color,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    modifier = Modifier.size(16.dp),
+                    painter = painterResource(iconId),
+                    contentDescription = null,
+                    tint = color
+                )
+            }
         }
     }
 }

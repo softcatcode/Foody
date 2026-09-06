@@ -10,6 +10,7 @@ import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.softcat.domain.entities.Recipe
 import com.softcat.foody.screens.details.DetailsComponentImpl
+import com.softcat.foody.screens.fridge.FridgeComponentImpl
 import com.softcat.foody.screens.recomend.RecommendComponentImpl
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -20,6 +21,7 @@ class RecommendRootImpl @AssistedInject constructor(
     @Assisted("context") componentContext: ComponentContext,
     private val detailsComponentFactory: DetailsComponentImpl.Factory,
     private val recommendComponentFactory: RecommendComponentImpl.Factory,
+    private val fridgeComponentFactory: FridgeComponentImpl.Factory,
 ): RecommendRoot, ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
@@ -51,9 +53,23 @@ class RecommendRootImpl @AssistedInject constructor(
                     componentContext = componentContext,
                     openRecipeDetailsCallback = {
                         navigation.push(Config.Details(it))
+                    },
+                    openFridgeCallback = {
+                        navigation.push(Config.Fridge)
                     }
                 )
                 RecommendRoot.Child.Recommend(component)
+            }
+
+            Config.Fridge -> {
+                val component = fridgeComponentFactory.create(
+                    openShoppingListCallback = {},
+                    back = {
+                        navigation.pop()
+                    },
+                    componentContext = componentContext
+                )
+                RecommendRoot.Child.Fridge(component)
             }
         }
     }
@@ -65,6 +81,9 @@ class RecommendRootImpl @AssistedInject constructor(
 
         @Serializable
         data class Details(val recipe: Recipe): Config
+
+        @Serializable
+        data object Fridge: Config
     }
 
     @AssistedFactory

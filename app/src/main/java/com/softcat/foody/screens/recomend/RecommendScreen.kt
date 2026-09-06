@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -32,7 +34,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,12 +51,14 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.softcat.foody.R
 import com.softcat.foody.common.AddToFavouritesButton
 import com.softcat.foody.common.ElementsScrollableFlow
 import com.softcat.foody.common.RecommendationButton
 import com.softcat.foody.common.SimpleAppBar
 import com.softcat.foody.screens.recomend.RecommendStore.State.RecommendationStatus
+import com.softcat.foody.ui.theme.BaseOrange
 import com.softcat.foody.ui.theme.FoodyTheme
 
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -66,11 +70,11 @@ private fun IngredientsAndTagsSelection(
     ingredients: List<String>,
     maxAbsentIngredients: Int,
 
-    addIngredientClicked: () -> Unit,
     addTagClicked: () -> Unit,
     removeIngredientClicked: (String) -> Unit,
     removeTagClicked: (String) -> Unit,
     changeMaxAbsentIngredients: (Int) -> Unit,
+    onOpenFridgeClicked: () -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val maxHeight = screenHeight * 0.2f
@@ -81,11 +85,21 @@ private fun IngredientsAndTagsSelection(
         ElementsScrollableFlow(
             modifier = Modifier.heightIn(max = maxHeight),
             elements = ingredients,
-            addElementClicked = addIngredientClicked,
             removeElementClicked = removeIngredientClicked,
             color = MaterialTheme.colorScheme.primary,
             title = stringResource(R.string.ingredients),
             iconId = R.drawable.vegetables,
+            navigationIcon = {
+                IconButton(onOpenFridgeClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.fridge),
+                        tint = BaseOrange,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            },
+            showAddButton = false
         )
         Spacer(Modifier.height(12.dp))
         ElementsScrollableFlow(
@@ -96,66 +110,80 @@ private fun IngredientsAndTagsSelection(
             color = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.tags),
             iconId = R.drawable.settings_image,
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    text = stringResource(R.string.max_absent_ingredients),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 2,
-                )
-                Slider(
-                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-                    value = maxAbsentIngredients.toFloat(),
-                    onValueChange = { changeMaxAbsentIngredients(it.toInt()) },
-                    colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.primary,
-                        activeTrackColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    steps = 10,
-                    valueRange = 0f..10f,
-                    thumb = {
-                        Box(
-                            modifier = Modifier.background(Transparent),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Spacer(
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary),
-                            )
-                        }
-                    },
-                    track = {
-                        Row {
-                            Spacer(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .weight(maxAbsentIngredients.toFloat() + 0.1f)
-                                    .background(MaterialTheme.colorScheme.primary),
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .weight(10.1f - maxAbsentIngredients.toFloat())
-                                    .background(MaterialTheme.colorScheme.tertiary),
-                            )
-                        }
-                    },
-                )
-                Text(
-                    text = maxAbsentIngredients.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
-            }
-        }
+        )
+        AbsentIngredientsSlider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .padding(vertical = 8.dp),
+            maxAbsentIngredients = maxAbsentIngredients,
+            changeMaxAbsentIngredients = changeMaxAbsentIngredients
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AbsentIngredientsSlider(
+    modifier: Modifier = Modifier,
+    maxAbsentIngredients: Int,
+    changeMaxAbsentIngredients: (Int) -> Unit
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(0.5f),
+            text = stringResource(R.string.max_absent_ingredients),
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 2,
+        )
+        Slider(
+            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+            value = maxAbsentIngredients.toFloat(),
+            onValueChange = { changeMaxAbsentIngredients(it.toInt()) },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+            ),
+            steps = 10,
+            valueRange = 0f..10f,
+            thumb = {
+                Box(
+                    modifier = Modifier.background(Transparent),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                }
+            },
+            track = {
+                Row {
+                    Spacer(
+                        modifier = Modifier
+                            .height(2.dp)
+                            .weight(maxAbsentIngredients.toFloat() + 0.1f)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(2.dp)
+                            .weight(10.1f - maxAbsentIngredients.toFloat())
+                            .background(MaterialTheme.colorScheme.tertiary),
+                    )
+                }
+            },
+        )
+        Text(
+            text = maxAbsentIngredients.toString(),
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1
+        )
     }
 }
 
@@ -178,6 +206,7 @@ private fun Initial(
         RecommendationButton(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(bottom = 4.dp)
                 .height(48.dp),
             isActive = true,
             onClick = onRecommendClick,
@@ -355,8 +384,7 @@ private fun RecommendationResultContent(
 
 @Composable
 fun RecommendScreen(component: RecommendComponent) {
-    val model = component.model.collectAsState()
-    val state = model.value
+    val state by component.model.subscribeAsState()
 
     RecommendContent(
         state = state,
@@ -365,9 +393,9 @@ fun RecommendScreen(component: RecommendComponent) {
         removeTag = component::removeTag,
         removeIngredient = component::removeIngredient,
         showAddTagDialog = component::showAddTagDialog,
-        showAddIngredientDialog = component::showAddIngredientDialog,
         changeMaxAbsentIngredients = component::changeMaxAbsentIngredients,
         openRecipeDetails = component::openRecipeDetails,
+        onOpenFridgeClicked = component::openFridge,
     )
     AddTagsDialog(
         state = state.tagDialogState,
@@ -375,13 +403,6 @@ fun RecommendScreen(component: RecommendComponent) {
         onQueryChange = component::changeSearchTagQuery,
         searchTags = component::searchTags,
         addTag = component::addTag,
-    )
-    AddIngredientsDialog(
-        state = state.ingredientDialogState,
-        onDismiss = component::hideDialog,
-        onQueryChange = component::changeSearchIngredientQuery,
-        searchIngredients = component::searchIngredients,
-        addIngredient = component::addIngredient
     )
 }
 
@@ -394,8 +415,8 @@ fun RecommendContent(
     removeTag: (String) -> Unit,
     removeIngredient: (String) -> Unit,
     showAddTagDialog: () -> Unit,
-    showAddIngredientDialog: () -> Unit,
     changeMaxAbsentIngredients: (Int) -> Unit,
+    onOpenFridgeClicked: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -413,7 +434,6 @@ fun RecommendContent(
             Spacer(Modifier.height(4.dp))
             IngredientsAndTagsSelection(
                 modifier = Modifier.wrapContentHeight(),
-                addIngredientClicked = showAddIngredientDialog,
                 addTagClicked = showAddTagDialog,
                 removeIngredientClicked = removeIngredient,
                 removeTagClicked = removeTag,
@@ -421,8 +441,8 @@ fun RecommendContent(
                 ingredients = state.ingredients,
                 maxAbsentIngredients = state.maxAbsentIngredients,
                 changeMaxAbsentIngredients = changeMaxAbsentIngredients,
+                onOpenFridgeClicked = onOpenFridgeClicked
             )
-            Spacer(Modifier.height(6.dp))
             Spacer(
                 modifier = Modifier
                     .height(1.dp)
@@ -487,7 +507,6 @@ private fun Recommendations_Preview() {
         ingredients = listOf("fish", "pork", "tomato", "butter", "egg"),
         tags = listOf("breakfast", "15-minutes-or-less"),
         maxAbsentIngredients = 1,
-        ingredientDialogState = RecommendStore.State.SelectIngredientDialogState.Hidden,
         tagDialogState = RecommendStore.State.SelectTagDialogState.Hidden,
         resultStatus = RecommendationStatus.Content(
             recipes = listOf(
@@ -510,8 +529,8 @@ private fun Recommendations_Preview() {
             removeTag = {},
             removeIngredient = {},
             showAddTagDialog = {},
-            showAddIngredientDialog = {},
-            changeMaxAbsentIngredients = {}
+            changeMaxAbsentIngredients = {},
+            onOpenFridgeClicked = {},
         )
     }
 }

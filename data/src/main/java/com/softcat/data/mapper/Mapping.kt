@@ -1,9 +1,7 @@
 package com.softcat.data.mapper
 
-import com.softcat.database.models.IngredientDbModel
 import com.softcat.database.models.ScoreDbModel
 import com.softcat.database.models.UserDbModel
-import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Score
 import com.softcat.domain.entities.User
 import java.util.Calendar
@@ -34,9 +32,4 @@ fun User.toDbModel() = UserDbModel(
     email = email,
     name = name,
     registerDate = registerDate.timeInMillis / 1000L
-)
-
-fun IngredientDbModel.toEntity() = Ingredient(
-    id = id,
-    name = name
 )

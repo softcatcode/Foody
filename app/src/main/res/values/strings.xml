@@ -93,4 +93,16 @@
 
     <string name="all_scores">All</string>
     <string name="cooked">Cooked</string>
+
+
+    // Экран с добавлением ингредиентов.
+    <string name="fridge_category_crops">Crops</string>
+    <string name="fridge_category_dairy">Dairy</string>
+    <string name="fridge_category_meat_fish">Meat and fish</string>
+    <string name="fridge_category_sweet">Sweet</string>
+    <string name="fridge_category_spice_sauce">Spice and sauce</string>
+    <string name="fridge_category_fruit_vegetables">Fruit and vegetables</string>
+    <string name="fridge_category_other">Other</string>
+    <string name="fridge_title">Fridge</string>
+    <string name="choose_available_products">Choose available products</string>
 </resources>

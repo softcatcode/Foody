@@ -93,4 +93,15 @@
 
     <string name="all_scores">Все</string>
     <string name="cooked">Приготовлено</string>
+
+    // Экран с добавлением ингредиентов.
+    <string name="fridge_category_crops">Крупы</string>
+    <string name="fridge_category_dairy">Молочные</string>
+    <string name="fridge_category_meat_fish">Мясо и рыба</string>
+    <string name="fridge_category_sweet">Сладкое</string>
+    <string name="fridge_category_spice_sauce">Специи и соусы</string>
+    <string name="fridge_category_fruit_vegetables">Фрукты и овощи</string>
+    <string name="fridge_category_other">Другое</string>
+    <string name="fridge_title">Холодильник</string>
+    <string name="choose_available_products">Выберите доступные продукты</string>
 </resources>

@@ -136,6 +136,18 @@ class Database @Inject constructor(
 
     override suspend fun getIngredients(limit: Int) = ingredientDao.getSample(limit)
 
+    override suspend fun getIngredients(ids: List<Int>) = ids.mapNotNull {
+        ingredientDao.get(it)
+    }
+
+    override suspend fun getAvailableIngredients() = ingredientDao.getAvailableIngredients()
+
+    override suspend fun addAvailableIngredient(ingredientId: Int) = ingredientDao.setAvailable(ingredientId)
+
+    override suspend fun removeAvailableIngredient(ingredientId: Int) = ingredientDao.setUnavailable(ingredientId)
+
+    override suspend fun resetAvailableIngredients() = ingredientDao.resetAvailableIngredients()
+
     override suspend fun getTags(limit: Int) = tagDao.getSample(limit)
 
     override suspend fun getFavouriteRecipeIds(userId: String) = favouritesManager.get(userId)

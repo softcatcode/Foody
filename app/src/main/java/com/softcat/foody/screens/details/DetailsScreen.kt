@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softcat.domain.entities.Ingredient
+import com.softcat.domain.entities.IngredientCategory
 import com.softcat.domain.entities.NutritionData
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
@@ -461,9 +461,9 @@ private fun Details_Preview() {
             description = "A simple recipe for your birthday.",
             steps = listOf("Put flour into the bowl."),
             ingredients = listOf(
-                Ingredient(1, "flour"),
-                Ingredient(2, "butter"),
-                Ingredient(3, "sugar")
+                Ingredient(1, "flour", IngredientCategory.Crops),
+                Ingredient(2, "butter", IngredientCategory.Dairy),
+                Ingredient(3, "sugar", IngredientCategory.Sweet)
             ),
             tags = listOf(
                 RecipeTag("occasion"),

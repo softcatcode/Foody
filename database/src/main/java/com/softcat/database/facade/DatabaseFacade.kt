@@ -49,6 +49,16 @@ interface DatabaseFacade {
 
     suspend fun getIngredients(limit: Int): List<IngredientDbModel>
 
+    suspend fun getIngredients(ids: List<Int>): List<IngredientDbModel>
+
+    suspend fun getAvailableIngredients(): List<IngredientDbModel>
+
+    suspend fun addAvailableIngredient(ingredientId: Int)
+
+    suspend fun removeAvailableIngredient(ingredientId: Int)
+
+    suspend fun resetAvailableIngredients()
+
     suspend fun getTags(limit: Int): List<TagDbModel>
 
     suspend fun getFavouriteRecipeIds(userId: String): Result<List<Int>>

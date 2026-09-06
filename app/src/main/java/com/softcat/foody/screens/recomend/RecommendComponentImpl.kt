@@ -3,21 +3,20 @@ package com.softcat.foody.screens.recomend
 import android.app.Application
 import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
-import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
-import com.softcat.domain.entities.Ingredient
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.domain.exceptions.NoScoresException
 import com.softcat.foody.R
+import com.softcat.foody.common.asValue
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -25,14 +24,15 @@ class RecommendComponentImpl @AssistedInject constructor(
     private val storeFactory: RecommendStoreFactory,
     private val application: Application,
     @Assisted("context") componentContext: ComponentContext,
-    @Assisted("open_recipe") private val openRecipeDetailsCallback: (Recipe) -> Unit
+    @Assisted("open_recipe") private val openRecipeDetailsCallback: (Recipe) -> Unit,
+    @Assisted("open_fridge") private val openFridgeCallback: () -> Unit,
 ): RecommendComponent, ComponentContext by componentContext {
 
-    private val store = instanceKeeper.getStore { storeFactory.create(componentContext.lifecycle) }
+    private val store = instanceKeeper.getStore { storeFactory.create() }
     private val scope = CoroutineScope(Dispatchers.Main)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val model: StateFlow<RecommendStore.State> = store.stateFlow
+    override val model: Value<RecommendStore.State> = store.asValue(lifecycle)
 
     init {
         scope.launch {
@@ -57,11 +57,6 @@ class RecommendComponentImpl @AssistedInject constructor(
     override fun changeMaxAbsentIngredients(newValue: Int) {
         Timber.i("${this::class.simpleName}: changeMaxAbsentIngredients()")
         store.accept(RecommendStore.Intent.ChangeMaxAbsentIngredients(newValue))
-    }
-
-    override fun addIngredient(ingredient: Ingredient) {
-        Timber.i("${this::class.simpleName}: addIngredient()")
-        store.accept(RecommendStore.Intent.AddIngredient(ingredient))
     }
 
     override fun removeIngredient(name: String) {
@@ -89,11 +84,6 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.ShowAddRequiredTagDialog)
     }
 
-    override fun showAddIngredientDialog() {
-        Timber.i("${this::class.simpleName}: showAddIngredientDialog()")
-        store.accept(RecommendStore.Intent.ShowAddRequiredIngredientDialog)
-    }
-
     override fun hideDialog() {
         Timber.i("${this::class.simpleName}: hideDialog()")
         store.accept(RecommendStore.Intent.HideDialog)
@@ -104,14 +94,14 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.OpenRecipeDetails(recipeId))
     }
 
+    override fun openFridge() {
+        Timber.i("${this::class.simpleName}: openFridge()")
+        openFridgeCallback()
+    }
+
     override fun changeFavouriteStatus(recipeId: Int) {
         Timber.i("${this::class.simpleName}: changeFavouriteStatus($recipeId)")
         store.accept(RecommendStore.Intent.ChangeFavouriteStatus(recipeId))
-    }
-
-    override fun searchIngredients(query: String) {
-        Timber.i("${this::class.simpleName}: searchIngredients($query)")
-        store.accept(RecommendStore.Intent.SearchIngredient(query))
     }
 
     override fun searchTags(query: String) {
@@ -124,16 +114,12 @@ class RecommendComponentImpl @AssistedInject constructor(
         store.accept(RecommendStore.Intent.ChangeSearchTagQuery(newValue))
     }
 
-    override fun changeSearchIngredientQuery(newValue: String) {
-        Timber.i("${this::class.simpleName}: changeSearchIngredientQuery($newValue)")
-        store.accept(RecommendStore.Intent.ChangeSearchIngredientQuery(newValue))
-    }
-
     @AssistedFactory
     interface Factory {
         fun create(
             @Assisted("context") componentContext: ComponentContext,
-            @Assisted("open_recipe") openRecipeDetailsCallback: (Recipe) -> Unit
+            @Assisted("open_recipe") openRecipeDetailsCallback: (Recipe) -> Unit,
+            @Assisted("open_fridge") openFridgeCallback: () -> Unit,
         ): RecommendComponentImpl
     }
 }
