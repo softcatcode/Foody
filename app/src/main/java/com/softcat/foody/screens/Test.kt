@@ -1,6 +1,7 @@
 package com.softcat.foody.screens
 
-fun sortBubble(a: MutableList<Int>) {
+fun sortBubble(list: List<Int>): List<Int> {
+    val a = list.toMutableList()
     val n = a.size
     for (i in 0 until n - 1) {
         for (j in 0 until n - i - 1) {
@@ -11,4 +12,5 @@ fun sortBubble(a: MutableList<Int>) {
             }
         }
     }
+    return a
 }
