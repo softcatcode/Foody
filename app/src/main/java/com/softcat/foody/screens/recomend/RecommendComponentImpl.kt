@@ -3,20 +3,20 @@ package com.softcat.foody.screens.recomend
 import android.app.Application
 import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
-import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.softcat.domain.entities.Recipe
 import com.softcat.domain.entities.RecipeTag
 import com.softcat.domain.exceptions.NoScoresException
 import com.softcat.foody.R
+import com.softcat.foody.common.asValue
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -32,7 +32,7 @@ class RecommendComponentImpl @AssistedInject constructor(
     private val scope = CoroutineScope(Dispatchers.Main)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val model: StateFlow<RecommendStore.State> = store.stateFlow
+    override val model: Value<RecommendStore.State> = store.asValue(lifecycle)
 
     init {
         scope.launch {

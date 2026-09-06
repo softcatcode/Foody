@@ -34,7 +34,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +51,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.softcat.foody.R
 import com.softcat.foody.common.AddToFavouritesButton
 import com.softcat.foody.common.ElementsScrollableFlow
@@ -383,8 +384,7 @@ private fun RecommendationResultContent(
 
 @Composable
 fun RecommendScreen(component: RecommendComponent) {
-    val model = component.model.collectAsState()
-    val state = model.value
+    val state by component.model.subscribeAsState()
 
     RecommendContent(
         state = state,
