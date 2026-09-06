@@ -1,9 +1,8 @@
-# .coderabbit.yaml
-language: "ru" # Робот будет писать на русском языке
+language: "ru"
 
 reviews:
   auto_review:
     enabled: true
-    # Разрешаем проверку для абсолютно всех веток (убираем ограничение)
     base_branches:
-      - ".*"
+      - main
+      - develop
