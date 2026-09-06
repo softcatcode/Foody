@@ -1,15 +1,14 @@
 package com.softcat.foody.screens.fridge
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -59,7 +58,6 @@ private fun FridgeContent(
     onResetClicked: () -> Unit,
     onBackClicked: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             FridgeTopBar(
@@ -74,15 +72,19 @@ private fun FridgeContent(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(top = paddingValues.calculateTopPadding())
                 .padding(horizontal = 16.dp)
-                .fillMaxSize()
-                .verticalScroll(scrollState),
+                .fillMaxSize(),
         ) {
-            Spacer(Modifier.height(16.dp))
-            state.categories.forEach { model ->
+            item {
+                Spacer(Modifier.height(16.dp))
+            }
+            items(
+                items = state.categories,
+                key = { it.id }
+            ) { model ->
                 IngredientCategoryCard(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     titleResId = model.titleResId,
@@ -129,14 +131,15 @@ private fun FridgeContent_Preview() {
     val state = FridgeStore.State(
         categories = listOf(
             FridgeStore.State.IngredientCategoryCard(
+                id = 1,
                 titleResId = R.string.fridge_category_crops,
                 iconResId = R.drawable.crops,
                 names = listOf("Гречка", "Перловка", "Овсянка"),
-                color = BaseOrange,
-
-                ),
+                color = BaseOrange
+            ),
 
             FridgeStore.State.IngredientCategoryCard(
+                id = 2,
                 titleResId = R.string.fridge_category_dairy,
                 iconResId = R.drawable.milk,
                 names = listOf("Молоко", "Творог"),
@@ -144,6 +147,7 @@ private fun FridgeContent_Preview() {
             ),
 
             FridgeStore.State.IngredientCategoryCard(
+                id = 3,
                 titleResId = R.string.fridge_category_fruit_vegetables,
                 iconResId = R.drawable.vegetables,
                 names = listOf("Яблоко", "Банан", "Морковь"),
@@ -151,6 +155,7 @@ private fun FridgeContent_Preview() {
             ),
 
             FridgeStore.State.IngredientCategoryCard(
+                id = 4,
                 titleResId = R.string.fridge_category_meat_fish,
                 iconResId = R.drawable.meat,
                 names = listOf("Говядина", "Свинина"),

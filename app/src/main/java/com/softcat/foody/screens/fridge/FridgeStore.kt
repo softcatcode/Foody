@@ -14,6 +14,7 @@ interface FridgeStore: Store<FridgeStore.Intent, FridgeStore.State, Nothing> {
     ) {
         @Immutable
         data class IngredientCategoryCard(
+            val id: Int,
             val titleResId: Int,
             val iconResId: Int,
             val color: Color,

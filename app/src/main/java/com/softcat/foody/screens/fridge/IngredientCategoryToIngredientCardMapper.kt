@@ -32,6 +32,16 @@ class IngredientCategoryToIngredientCardMapper {
         IngredientCategory.Other -> R.drawable.blue_octopus
     }
 
+    private fun getIngredientCardId(category: IngredientCategory) = when (category) {
+        IngredientCategory.Crops -> 1
+        IngredientCategory.Dairy -> 2
+        IngredientCategory.MeatAndFish -> 3
+        IngredientCategory.Sweet -> 4
+        IngredientCategory.SpiceAndSauce -> 5
+        IngredientCategory.FruitAndVegetables -> 6
+        IngredientCategory.Other -> 7
+    }
+
     private fun getColor(category: IngredientCategory) = when (category) {
         IngredientCategory.Crops -> BaseOrange
         IngredientCategory.Dairy -> Purple
@@ -52,6 +62,7 @@ class IngredientCategoryToIngredientCardMapper {
         val result = mutableListOf<FridgeStore.State.IngredientCategoryCard>()
         categories.forEach { (key, value) ->
             val card = FridgeStore.State.IngredientCategoryCard(
+                id = getIngredientCardId(key),
                 titleResId = getTitleResId(key),
                 iconResId = getIconResId(key),
                 color = getColor(key),
@@ -59,6 +70,6 @@ class IngredientCategoryToIngredientCardMapper {
             )
             result.add(card)
         }
-        return result
+        return result.sortedBy { it.id }
     }
 }
