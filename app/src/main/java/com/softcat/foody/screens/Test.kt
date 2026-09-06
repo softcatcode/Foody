@@ -12,5 +12,6 @@ fun sortBubble(list: List<Int>): List<Int> {
             }
         }
     }
+
     return a
 }
